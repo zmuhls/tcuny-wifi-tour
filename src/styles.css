@@ -762,8 +762,11 @@ dd {
   background: #fbfdfc;
   border: 1px solid var(--line);
   color: var(--ink);
+  cursor: pointer;
   font-size: 0.78rem;
   font-weight: 690;
+  gap: 7px;
+  justify-content: flex-start;
   min-height: 34px;
   padding: 0 9px;
   text-align: left;
@@ -773,6 +776,35 @@ dd {
   background: #eef7f5;
   border-color: #6eb8af;
   box-shadow: inset 3px 0 0 #2f8d85;
+}
+
+.ssid-choice-input {
+  height: 1px;
+  margin: -1px;
+  opacity: 0;
+  padding: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 1px;
+}
+
+.ssid-choice-check {
+  align-items: center;
+  border: 1px solid #a9bbb8;
+  border-radius: var(--radius);
+  color: #2f8d85;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 18px;
+  justify-content: center;
+  width: 18px;
+}
+
+.ssid-choice-name {
+  color: var(--ink);
+  display: inline-block;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .ping-button {

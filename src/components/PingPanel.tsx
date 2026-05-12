@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { LocateFixed, Radio, ShieldCheck, TriangleAlert } from "lucide-react";
+import { Check, LocateFixed, Radio, ShieldCheck, TriangleAlert } from "lucide-react";
 import type { Contributor, PingNetworkInfo, PingRecord, TourPin } from "../types";
 import { formatMeters } from "../utils/geo";
 import { getCurrentPosition, measureServerPing, readNetworkInfo } from "../utils/ping";
@@ -93,15 +93,24 @@ export function PingPanel({ pin, contributor, onPing }: PingPanelProps) {
           <legend>Assigned Wi-Fi</legend>
           <div className="ssid-choice-list">
             {pin.wifi.ssids.map((ssid) => (
-              <button
+              <label
                 className={`ssid-choice ${ssidClaim === ssid ? "active" : ""}`}
                 key={ssid}
-                type="button"
-                onClick={() => setSsidClaim(ssid)}
-                aria-pressed={ssidClaim === ssid}
+                title={ssid}
               >
-                {ssid}
-              </button>
+                <input
+                  className="ssid-choice-input"
+                  type="radio"
+                  name={`assigned-wifi-${pin.id}`}
+                  value={ssid}
+                  checked={ssidClaim === ssid}
+                  onChange={() => setSsidClaim(ssid)}
+                />
+                <span className="ssid-choice-check" aria-hidden="true">
+                  {ssidClaim === ssid ? <Check size={14} /> : null}
+                </span>
+                <span className="ssid-choice-name">{ssid}</span>
+              </label>
             ))}
           </div>
         </fieldset>
