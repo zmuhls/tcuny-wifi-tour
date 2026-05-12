@@ -1,7 +1,8 @@
-import type { Contributor, PingRecord } from "../types";
+import type { AnecdoteRecord, Contributor, PingRecord } from "../types";
 
 const CONTRIBUTOR_KEY = "tcuny-wifi-tour:contributor";
 const PINGS_KEY = "tcuny-wifi-tour:pings";
+const ANECDOTES_KEY = "tcuny-wifi-tour:anecdotes";
 
 export function loadContributor() {
   return readJson<Contributor | null>(CONTRIBUTOR_KEY, null);
@@ -22,6 +23,14 @@ export function loadPings() {
 
 export function savePings(pings: PingRecord[]) {
   localStorage.setItem(PINGS_KEY, JSON.stringify(pings));
+}
+
+export function loadAnecdotes() {
+  return readJson<AnecdoteRecord[]>(ANECDOTES_KEY, []);
+}
+
+export function saveAnecdotes(anecdotes: AnecdoteRecord[]) {
+  localStorage.setItem(ANECDOTES_KEY, JSON.stringify(anecdotes));
 }
 
 function readJson<T>(key: string, fallback: T): T {

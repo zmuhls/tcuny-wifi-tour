@@ -14,6 +14,7 @@ import { JoinPanel } from "./components/JoinPanel";
 import { MapView } from "./components/MapView";
 import { PinCard } from "./components/PinCard";
 import { PingPanel } from "./components/PingPanel";
+import { WifiWallPanel } from "./components/WifiWallPanel";
 import { pins, routeStops, walkingRoutePath } from "./data/tour";
 import { isSupabaseConfigured } from "./lib/supabase";
 import { useTourStore } from "./lib/useTourStore";
@@ -51,9 +52,11 @@ export default function App() {
   const {
     contributor,
     pings,
+    anecdotes,
     join,
     leave,
     addPing,
+    addAnecdote,
     getProgress,
     resetPings,
   } = useTourStore();
@@ -185,6 +188,12 @@ export default function App() {
         />
 
         <JoinPanel contributor={contributor} onJoin={join} onLeave={leave} />
+
+        <WifiWallPanel
+          contributor={contributor}
+          anecdotes={anecdotes}
+          onAdd={addAnecdote}
+        />
 
         <section className="stats-grid" aria-label="Tour progress">
           <StatCard

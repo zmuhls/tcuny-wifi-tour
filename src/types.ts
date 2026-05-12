@@ -108,6 +108,18 @@ export interface PingRecord {
   networkInfo?: PingNetworkInfo;
 }
 
+export interface AnecdoteRecord {
+  id: string;
+  eventId: string;
+  contributorId: string | null;
+  contributorName: string;
+  teamName: string;
+  accessCode: string;
+  body: string;
+  wordCount: number;
+  createdAt: string;
+}
+
 export interface PingCandidate {
   pin: TourPin;
   event: TourEvent;

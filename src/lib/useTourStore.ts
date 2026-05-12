@@ -1,16 +1,34 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { tourEvent } from "../data/tour";
-import type { Contributor, PingCandidate, PingRecord, TourPin } from "../types";
-import { saveContributor, loadContributor, loadPings, savePings } from "../utils/storage";
+import type {
+  AnecdoteRecord,
+  Contributor,
+  PingCandidate,
+  PingRecord,
+  TourPin,
+} from "../types";
+import { validateAnecdoteBody } from "../utils/anecdotes";
+import {
+  loadAnecdotes,
+  loadContributor,
+  loadPings,
+  saveAnecdotes,
+  saveContributor,
+  savePings,
+} from "../utils/storage";
 import { summarizePinProgress, verifyPing } from "../utils/verification";
 
-const CHANNEL_NAME = "tcuny-wifi-tour:pings";
+const PING_CHANNEL_NAME = "tcuny-wifi-tour:pings";
+const ANECDOTE_CHANNEL_NAME = "tcuny-wifi-tour:anecdotes";
 
 export function useTourStore() {
   const [contributor, setContributor] = useState<Contributor | null>(() =>
     loadContributor(),
   );
   const [pings, setPings] = useState<PingRecord[]>(() => loadPings());
+  const [anecdotes, setAnecdotes] = useState<AnecdoteRecord[]>(() =>
+    loadAnecdotes(),
+  );
 
   useEffect(() => {
     saveContributor(contributor);
@@ -21,11 +39,15 @@ export function useTourStore() {
   }, [pings]);
 
   useEffect(() => {
+    saveAnecdotes(anecdotes);
+  }, [anecdotes]);
+
+  useEffect(() => {
     if (!("BroadcastChannel" in window)) {
       return;
     }
 
-    const channel = new BroadcastChannel(CHANNEL_NAME);
+    const channel = new BroadcastChannel(PING_CHANNEL_NAME);
     channel.onmessage = (event: MessageEvent<PingRecord[]>) => {
       if (Array.isArray(event.data)) {
         setPings(event.data);
@@ -35,10 +57,33 @@ export function useTourStore() {
     return () => channel.close();
   }, []);
 
-  const broadcast = useCallback((nextPings: PingRecord[]) => {
+  useEffect(() => {
     if ("BroadcastChannel" in window) {
-      const channel = new BroadcastChannel(CHANNEL_NAME);
+      const channel = new BroadcastChannel(ANECDOTE_CHANNEL_NAME);
+      channel.onmessage = (event: MessageEvent<AnecdoteRecord[]>) => {
+        if (Array.isArray(event.data)) {
+          setAnecdotes(event.data);
+        }
+      };
+
+      return () => channel.close();
+    }
+
+    return undefined;
+  }, []);
+
+  const broadcastPings = useCallback((nextPings: PingRecord[]) => {
+    if ("BroadcastChannel" in window) {
+      const channel = new BroadcastChannel(PING_CHANNEL_NAME);
       channel.postMessage(nextPings);
+      channel.close();
+    }
+  }, []);
+
+  const broadcastAnecdotes = useCallback((nextAnecdotes: AnecdoteRecord[]) => {
+    if ("BroadcastChannel" in window) {
+      const channel = new BroadcastChannel(ANECDOTE_CHANNEL_NAME);
+      channel.postMessage(nextAnecdotes);
       channel.close();
     }
   }, []);
@@ -91,11 +136,55 @@ export function useTourStore() {
       const nextPings = [ping, ...pings].slice(0, 400);
 
       setPings(nextPings);
-      broadcast(nextPings);
+      broadcastPings(nextPings);
 
       return ping;
     },
-    [broadcast, contributor, pings],
+    [broadcastPings, contributor, pings],
+  );
+
+  const addAnecdote = useCallback(
+    (input: { body: string; accessCode: string }) => {
+      const normalizedCode = input.accessCode.trim().toUpperCase();
+
+      if (!tourEvent.accessCodes.includes(normalizedCode)) {
+        return {
+          ok: false,
+          message: "Use the active tour access code to post to the wall.",
+        };
+      }
+
+      const validation = validateAnecdoteBody(input.body);
+
+      if (!validation.ok) {
+        return {
+          ok: false,
+          message: validation.message,
+        };
+      }
+
+      const anecdote: AnecdoteRecord = {
+        id: crypto.randomUUID(),
+        eventId: tourEvent.id,
+        contributorId: contributor?.id ?? null,
+        contributorName: contributor?.displayName.trim() || "Anonymous participant",
+        teamName: contributor?.teamName.trim() || "Bathroom wall",
+        accessCode: normalizedCode,
+        body: validation.body,
+        wordCount: validation.wordCount,
+        createdAt: new Date().toISOString(),
+      };
+      const nextAnecdotes = [anecdote, ...anecdotes].slice(0, 100);
+
+      setAnecdotes(nextAnecdotes);
+      broadcastAnecdotes(nextAnecdotes);
+
+      return {
+        ok: true,
+        message: validation.message,
+      };
+    },
+    [anecdotes, broadcastAnecdotes, contributor],
   );
 
   const progressByPin = useMemo(() => {
@@ -109,16 +198,18 @@ export function useTourStore() {
 
   const resetPings = useCallback(() => {
     setPings([]);
-    broadcast([]);
-  }, [broadcast]);
+    broadcastPings([]);
+  }, [broadcastPings]);
 
   return {
     event: tourEvent,
     contributor,
     pings,
+    anecdotes,
     join,
     leave,
     addPing,
+    addAnecdote,
     getProgress,
     progressByPin,
     resetPings,

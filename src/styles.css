@@ -44,7 +44,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -213,6 +214,7 @@ h2 {
 .route-summary,
 .pathway-bar,
 .join-panel,
+.wifi-wall-panel,
 .filter-bar,
 .source-panel,
 .ping-panel,
@@ -312,6 +314,139 @@ h2 {
   display: block;
 }
 
+.wifi-wall-panel {
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.wifi-wall-panel summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  min-height: 48px;
+  padding: 8px 9px;
+}
+
+.wifi-wall-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.wall-summary-main,
+.wall-summary-meta {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.wall-summary-main svg {
+  color: #5f7e89;
+}
+
+.wall-summary-main strong,
+.wall-summary-main small {
+  display: block;
+}
+
+.wall-summary-main strong {
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.wall-summary-main small,
+.wall-empty {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 620;
+}
+
+.wall-summary-meta {
+  background: #f1f6f4;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 720;
+  min-height: 28px;
+  padding: 0 6px;
+}
+
+.wifi-wall-panel[open] .wall-summary-meta svg {
+  transform: rotate(180deg);
+}
+
+.wall-panel-body {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  padding: 9px;
+}
+
+.wall-form {
+  display: grid;
+  gap: 8px;
+}
+
+.wall-form-footer {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.word-count {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 720;
+}
+
+.word-count.over-limit {
+  color: var(--danger);
+}
+
+.wall-submit {
+  min-height: 34px;
+}
+
+.wall-submit:disabled {
+  cursor: not-allowed;
+}
+
+.wall-empty {
+  margin: 0;
+}
+
+.wall-note-list {
+  display: grid;
+  gap: 7px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.wall-note {
+  background: #f7fbfa;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px;
+}
+
+.wall-note p {
+  color: var(--ink);
+  font-size: 0.78rem;
+  line-height: 1.42;
+  margin-bottom: 6px;
+}
+
+.wall-note span {
+  color: var(--muted);
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 680;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
 label {
   color: var(--muted);
   display: grid;
@@ -321,7 +456,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: #fff;
@@ -331,8 +467,15 @@ select {
   width: 100%;
 }
 
+textarea {
+  line-height: 1.35;
+  min-height: 96px;
+  resize: vertical;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   border-color: var(--teal);
   box-shadow: 0 0 0 3px rgb(31 138 138 / 17%);
   outline: 0;
