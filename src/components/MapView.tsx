@@ -106,6 +106,10 @@ export function MapView({
       .map((id) => pins.find((pin) => pin.id === id))
       .filter(Boolean) as TourPin[];
     const routeLatLngs = getRouteLatLngs(walkingRoutePath, routePins);
+    const selectedPin = pins.find((pin) => pin.id === selectedPinId);
+    const selectedRouteLatLngs = selectedPin
+      ? getSelectedPingPath(routeLatLngs, selectedPin)
+      : [];
     const requiredRouteIds = Array.from(
       new Set(
         routeStopIds.filter(
@@ -127,12 +131,35 @@ export function MapView({
       routeLatLngs,
       {
         color: "#78d7c7",
-        weight: 4,
-        opacity: 0.92,
-        dashArray: "12 10",
+        weight: 3,
+        opacity: 0.34,
         lineCap: "round",
       },
     ).addTo(routeLayer);
+
+    if (selectedRouteLatLngs.length > 1) {
+      L.polyline(
+        selectedRouteLatLngs,
+        {
+          color: "#061119",
+          weight: 9,
+          opacity: 0.74,
+          lineCap: "round",
+        },
+      ).addTo(routeLayer);
+
+      L.polyline(
+        selectedRouteLatLngs,
+        {
+          color: "#bdf7ee",
+          weight: 4,
+          opacity: 0.96,
+          dashArray: "10 9",
+          lineCap: "round",
+          lineJoin: "round",
+        },
+      ).addTo(routeLayer);
+    }
 
     routePins.forEach((pin, index) => {
       L.circleMarker([pin.latitude, pin.longitude], {
@@ -266,6 +293,109 @@ function getRouteLatLngs(
   return walkingRoutePath.length > 1
     ? walkingRoutePath.map(([latitude, longitude]) => L.latLng(latitude, longitude))
     : fallbackPins.map((pin) => L.latLng(pin.latitude, pin.longitude));
+}
+
+function getSelectedPingPath(routeLatLngs: L.LatLng[], selectedPin: TourPin) {
+  if (!routeLatLngs.length) {
+    return [L.latLng(selectedPin.latitude, selectedPin.longitude)];
+  }
+
+  const selectedLatLng = L.latLng(selectedPin.latitude, selectedPin.longitude);
+  const closestRouteIndex = getClosestRouteIndex(routeLatLngs, selectedLatLng);
+  const activeRoute = routeLatLngs.slice(0, closestRouteIndex + 1);
+  const connector = getManhattanGridConnector(
+    routeLatLngs[closestRouteIndex],
+    selectedLatLng,
+  );
+
+  return [...activeRoute, ...connector.slice(1)];
+}
+
+function getClosestRouteIndex(routeLatLngs: L.LatLng[], target: L.LatLng) {
+  return routeLatLngs.reduce(
+    (closest, point, index) => {
+      const distance = point.distanceTo(target);
+
+      return distance < closest.distance ? { distance, index } : closest;
+    },
+    { distance: Number.POSITIVE_INFINITY, index: 0 },
+  ).index;
+}
+
+function getManhattanGridConnector(start: L.LatLng, end: L.LatLng) {
+  if (start.distanceTo(end) < 35) {
+    return [start, end];
+  }
+
+  const origin = {
+    latitude: (start.lat + end.lat) / 2,
+    longitude: (start.lng + end.lng) / 2,
+  };
+  const startMeters = projectLatLng(start, origin);
+  const endMeters = projectLatLng(end, origin);
+  const startGrid = rotateToManhattanGrid(startMeters);
+  const endGrid = rotateToManhattanGrid(endMeters);
+  const firstLegIsAvenue =
+    Math.abs(endGrid.avenue - startGrid.avenue) >=
+    Math.abs(endGrid.street - startGrid.street);
+  const bendGrid = firstLegIsAvenue
+    ? { avenue: endGrid.avenue, street: startGrid.street }
+    : { avenue: startGrid.avenue, street: endGrid.street };
+  const bendMeters = rotateFromManhattanGrid(bendGrid);
+
+  return [start, unprojectLatLng(bendMeters, origin), end];
+}
+
+function projectLatLng(
+  point: L.LatLng,
+  origin: { latitude: number; longitude: number },
+) {
+  const metersPerLongitude =
+    111_320 * Math.cos((origin.latitude * Math.PI) / 180);
+
+  return {
+    x: (point.lng - origin.longitude) * metersPerLongitude,
+    y: (point.lat - origin.latitude) * 110_540,
+  };
+}
+
+function unprojectLatLng(
+  point: { x: number; y: number },
+  origin: { latitude: number; longitude: number },
+) {
+  const metersPerLongitude =
+    111_320 * Math.cos((origin.latitude * Math.PI) / 180);
+
+  return L.latLng(
+    origin.latitude + point.y / 110_540,
+    origin.longitude + point.x / metersPerLongitude,
+  );
+}
+
+function rotateToManhattanGrid(point: { x: number; y: number }) {
+  const avenueAxisRadians = (29 * Math.PI) / 180;
+  const avenueX = Math.sin(avenueAxisRadians);
+  const avenueY = Math.cos(avenueAxisRadians);
+  const streetX = avenueY;
+  const streetY = -avenueX;
+
+  return {
+    avenue: point.x * avenueX + point.y * avenueY,
+    street: point.x * streetX + point.y * streetY,
+  };
+}
+
+function rotateFromManhattanGrid(point: { avenue: number; street: number }) {
+  const avenueAxisRadians = (29 * Math.PI) / 180;
+  const avenueX = Math.sin(avenueAxisRadians);
+  const avenueY = Math.cos(avenueAxisRadians);
+  const streetX = avenueY;
+  const streetY = -avenueX;
+
+  return {
+    x: point.avenue * avenueX + point.street * streetX,
+    y: point.avenue * avenueY + point.street * streetY,
+  };
 }
 
 function markerHtml(
