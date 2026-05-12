@@ -320,7 +320,7 @@ function PathwayBar({
             aria-pressed={active === option.id}
           >
             <span>{option.label}</span>
-            <em>{counts[option.id]}</em>
+            <em>{counts[option.id]} pins</em>
           </button>
         ))}
       </div>

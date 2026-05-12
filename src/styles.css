@@ -254,9 +254,10 @@ h2 {
 }
 
 .pathway-grid {
-  display: grid;
+  display: flex;
   gap: 5px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  overflow-x: auto;
+  padding-bottom: 1px;
 }
 
 .pathway-chip {
@@ -264,12 +265,13 @@ h2 {
   border: 1px solid var(--line);
   color: var(--muted);
   display: grid;
-  font-size: 0.68rem;
+  flex: 0 0 62px;
+  font-size: 0.72rem;
   font-weight: 670;
-  gap: 2px;
+  gap: 4px;
   justify-content: stretch;
-  min-height: 42px;
-  padding: 6px 4px;
+  min-height: 50px;
+  padding: 7px 6px;
   text-align: center;
 }
 
@@ -282,8 +284,9 @@ h2 {
 
 .pathway-chip em {
   color: #8ba0a5;
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 740;
+  text-transform: uppercase;
 }
 
 .pathway-chip.active {
