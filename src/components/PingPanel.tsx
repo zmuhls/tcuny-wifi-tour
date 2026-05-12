@@ -89,17 +89,22 @@ export function PingPanel({ pin, contributor, onPing }: PingPanelProps) {
       </ul>
 
       <form onSubmit={submit}>
-        <label>
-          Assigned Wi-Fi
-          <select
-            value={ssidClaim}
-            onChange={(event) => setSsidClaim(event.target.value)}
-          >
+        <fieldset className="ssid-fieldset">
+          <legend>Assigned Wi-Fi</legend>
+          <div className="ssid-choice-list">
             {pin.wifi.ssids.map((ssid) => (
-              <option key={ssid} value={ssid} />
+              <button
+                className={`ssid-choice ${ssidClaim === ssid ? "active" : ""}`}
+                key={ssid}
+                type="button"
+                onClick={() => setSsidClaim(ssid)}
+                aria-pressed={ssidClaim === ssid}
+              >
+                {ssid}
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        </fieldset>
         <button className="primary-button ping-button" type="submit" disabled={busy}>
           <LocateFixed size={18} />
           {busy ? "Checking..." : "Ping from here"}

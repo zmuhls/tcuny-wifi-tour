@@ -340,7 +340,8 @@ select:focus {
 .text-button,
 .icon-link,
 .pathway-chip,
-.filter-chip {
+.filter-chip,
+.ssid-choice {
   align-items: center;
   border-radius: var(--radius);
   display: inline-flex;
@@ -730,6 +731,48 @@ dd {
 .ping-panel form {
   display: grid;
   gap: 10px;
+}
+
+.ssid-fieldset {
+  border: 0;
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+}
+
+.ssid-fieldset legend {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0;
+}
+
+.ssid-choice-list {
+  background: #f7fbfa;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 7px;
+}
+
+.ssid-choice {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 690;
+  min-height: 34px;
+  padding: 0 9px;
+  text-align: left;
+}
+
+.ssid-choice.active {
+  background: #eef7f5;
+  border-color: #6eb8af;
+  box-shadow: inset 3px 0 0 #2f8d85;
 }
 
 .ping-button {
