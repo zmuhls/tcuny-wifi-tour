@@ -413,7 +413,7 @@ function markerHtml(
           ? "?"
           : routeOrder > -1
             ? String(routeOrder + 1)
-            : "•";
+            : "";
 
   return `<span class="tour-marker marker-${pin.category} marker-${pin.role} marker-${progress.status} ${
     isSelected ? "marker-selected" : ""

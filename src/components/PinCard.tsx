@@ -66,7 +66,7 @@ export function PinCard({
           <dl className="wifi-details">
             <div>
               <dt>Provider</dt>
-              <dd>{pin.wifi.provider}</dd>
+              <dd>{providerLabel(pin.wifi.provider)}</dd>
             </div>
             <div>
               <dt>SSID</dt>
@@ -163,6 +163,10 @@ function accessLabel(accessType: TourPin["wifi"]["accessType"]) {
   };
 
   return labels[accessType];
+}
+
+function providerLabel(provider: string) {
+  return provider.trim().toLowerCase() === "altice" ? "Optimum" : provider;
 }
 
 function liveStatusLabel(liveStatus: TourPin["wifi"]["liveStatus"]) {

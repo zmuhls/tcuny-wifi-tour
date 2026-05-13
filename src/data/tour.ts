@@ -2519,7 +2519,7 @@ function privateTestPinsFromEnv(): TourPin[] {
       wifi: {
         provider:
           readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_PROVIDER") ||
-          "Private local network",
+          "Optimum",
         ssids: [ssid],
         accessType: "private-test",
         locationType: "Private test address",
