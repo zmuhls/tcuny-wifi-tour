@@ -74,7 +74,11 @@ export function JoinPanel({ contributor, onJoin, onLeave }: JoinPanelProps) {
         <LogIn size={18} />
         Join tour
       </button>
-      {message ? <p className="form-note">{message}</p> : null}
+      {message ? (
+        <p className="form-note" role="status" aria-live="polite">
+          {message}
+        </p>
+      ) : null}
     </form>
   );
 }

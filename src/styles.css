@@ -25,6 +25,7 @@
   --success: #2f7d4a;
   --radius: 2px;
   --shadow: 0 18px 44px rgb(29 50 60 / 14%);
+  --tap-target: 44px;
 }
 
 * {
@@ -34,12 +35,20 @@
 html,
 body,
 #root {
+  height: 100%;
   min-height: 100%;
   margin: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   overflow: hidden;
+  overflow-x: hidden;
+  min-width: 320px;
+  overscroll-behavior: none;
 }
 
 button,
@@ -51,18 +60,52 @@ textarea {
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 a {
   color: inherit;
 }
 
+:where(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [tabindex]:not([tabindex="-1"])
+  ):focus-visible {
+  outline: 3px solid rgb(63 141 136 / 78%);
+  outline-offset: 2px;
+}
+
 .app-shell {
   display: grid;
-  grid-template-columns: clamp(240px, 18vw, 280px) minmax(620px, 1fr) clamp(300px, 23vw, 340px);
+  grid-template-columns: clamp(240px, 18vw, 280px) minmax(0, 1fr) clamp(300px, 23vw, 340px);
   grid-template-areas: "controls map detail";
+  min-height: 100svh;
   height: 100vh;
+  height: 100dvh;
   background: #f7f8f7;
+}
+
+.skip-link {
+  background: #fff;
+  border: 2px solid var(--teal);
+  color: var(--ink);
+  font-weight: 780;
+  left: 12px;
+  padding: 10px 12px;
+  position: fixed;
+  top: 12px;
+  transform: translateY(-180%);
+  transition: transform 120ms ease;
+  z-index: 2000;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 .control-panel,
@@ -70,7 +113,10 @@ a {
   background: #f8fbfa;
   border-color: var(--line);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 12px;
+  min-width: 0;
+  overscroll-behavior: contain;
 }
 
 .control-panel {
@@ -91,6 +137,10 @@ a {
     radial-gradient(circle at 50% 20%, rgb(103 210 196 / 18%), transparent 32%),
     linear-gradient(180deg, #071017 0%, #101820 100%);
   overflow: hidden;
+}
+
+.map-area:focus {
+  outline: none;
 }
 
 .map-canvas {
@@ -260,6 +310,8 @@ h2 {
   gap: 5px;
   overflow-x: auto;
   padding-bottom: 1px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 .pathway-chip {
@@ -462,7 +514,7 @@ textarea {
   border-radius: var(--radius);
   background: #fff;
   color: var(--ink);
-  min-height: 42px;
+  min-height: var(--tap-target);
   padding: 10px 11px;
   width: 100%;
 }
@@ -492,7 +544,7 @@ textarea:focus {
   display: inline-flex;
   gap: 7px;
   justify-content: center;
-  min-height: 34px;
+  min-height: 38px;
   text-decoration: none;
 }
 
@@ -505,7 +557,7 @@ textarea:focus {
 }
 
 .primary-button:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: 0.65;
 }
 
@@ -650,6 +702,7 @@ textarea:focus {
   display: grid;
   gap: 9px;
   grid-template-columns: auto 1fr;
+  min-height: 38px;
   padding: 0;
   text-align: left;
   width: 100%;
@@ -1028,18 +1081,20 @@ dd {
 @media (max-width: 1180px) {
   body {
     overflow: auto;
+    overscroll-behavior: auto;
   }
 
   .app-shell {
-    grid-template-columns: minmax(240px, 280px) minmax(520px, 1fr);
+    grid-template-columns: minmax(232px, 270px) minmax(0, 1fr);
     grid-template-areas:
       "controls map"
       "detail detail";
     height: auto;
-    min-height: 100vh;
+    min-height: 100svh;
   }
 
   .map-area {
+    height: 66svh;
     min-height: 66svh;
   }
 
@@ -1068,12 +1123,15 @@ dd {
       "map"
       "detail"
       "controls";
+    grid-template-rows: auto auto auto;
+    min-height: 100svh;
   }
 
   .map-area {
-    min-height: 72svh;
-    position: sticky;
-    top: 0;
+    height: clamp(340px, 58svh, 560px);
+    height: clamp(340px, 58dvh, 560px);
+    min-height: 0;
+    position: relative;
     z-index: 1;
   }
 
@@ -1081,7 +1139,7 @@ dd {
   .detail-panel {
     border-left: 0;
     border-right: 0;
-    padding: 10px;
+    padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
   }
 
   .detail-panel {
@@ -1091,7 +1149,7 @@ dd {
     z-index: 2;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    box-shadow: 0 -16px 34px rgb(0 0 0 / 16%);
+    box-shadow: 0 -10px 24px rgb(0 0 0 / 14%);
   }
 
   .app-header {
@@ -1102,6 +1160,10 @@ dd {
   .wifi-details,
   .ping-proof {
     grid-template-columns: 1fr;
+  }
+
+  .signal-check-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .pin-list,
@@ -1126,13 +1188,19 @@ dd {
   }
 
   .tour-marker {
-    height: 30px;
-    width: 30px;
+    height: 34px;
+    width: 34px;
   }
 
   .marker-required {
-    height: 36px;
-    width: 36px;
+    height: 40px;
+    width: 40px;
+  }
+
+  .leaflet-control-zoom a {
+    height: 34px !important;
+    line-height: 34px !important;
+    width: 34px !important;
   }
 }
 
@@ -1142,12 +1210,13 @@ dd {
   }
 
   .map-area {
-    min-height: 76svh;
+    height: clamp(320px, 52svh, 460px);
+    height: clamp(320px, 52dvh, 460px);
   }
 
   .control-panel,
   .detail-panel {
-    padding: 9px;
+    padding: 9px max(9px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(9px, env(safe-area-inset-left));
   }
 
   .filter-grid,
@@ -1161,8 +1230,18 @@ dd {
     grid-template-columns: 1fr;
   }
 
+  .primary-button,
+  .ghost-button,
+  .text-button,
+  .icon-link,
+  .filter-chip,
+  .pathway-chip,
+  .wifi-wall-panel summary {
+    min-height: var(--tap-target);
+  }
+
   .icon-link,
   .filter-chip {
-    min-height: 34px;
+    min-height: var(--tap-target);
   }
 }

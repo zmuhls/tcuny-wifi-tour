@@ -168,7 +168,14 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <aside className="control-panel" aria-label="Tour controls">
+      <a className="skip-link" href="#tour-map">
+        Skip to map
+      </a>
+      <a className="skip-link" href="#selected-access-point">
+        Skip to selected stop
+      </a>
+
+      <aside className="control-panel" id="tour-controls" aria-label="Tour controls">
         <header className="app-header">
           <div className="brand-mark">
             <Wifi size={24} />
@@ -265,7 +272,12 @@ export default function App() {
         </section>
       </aside>
 
-      <section className="map-area" aria-label="Interactive Manhattan map">
+      <section
+        className="map-area"
+        id="tour-map"
+        aria-label="Interactive Manhattan map"
+        tabIndex={-1}
+      >
         <MapView
           pins={visiblePins}
           routeStopIds={routeStops}
@@ -287,7 +299,12 @@ export default function App() {
         </div>
       </section>
 
-      <aside className="detail-panel" aria-label="Selected access point">
+      <aside
+        className="detail-panel"
+        id="selected-access-point"
+        aria-label="Selected access point"
+        tabIndex={-1}
+      >
         <PinCard pin={selectedPin} progress={getProgress(selectedPin)} selected />
         <PingPanel
           pin={selectedPin}

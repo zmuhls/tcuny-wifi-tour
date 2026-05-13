@@ -231,6 +231,8 @@ export function PingPanel({
 
       {message ? (
         <div
+          role="status"
+          aria-live="polite"
           className={`ping-result ${
             lastPing?.status === "verified" ? "success" : "review"
           }`}

@@ -97,7 +97,11 @@ export function WifiWallPanel({
           <p className="form-note">
             Signed as {contributor?.displayName || "anonymous"}.
           </p>
-          {message ? <p className="form-note">{message}</p> : null}
+          {message ? (
+            <p className="form-note" role="status" aria-live="polite">
+              {message}
+            </p>
+          ) : null}
         </form>
 
         {anecdotes.length ? (
