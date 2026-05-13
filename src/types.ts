@@ -100,8 +100,6 @@ export interface PingRecord {
   latitude: number;
   longitude: number;
   gpsAccuracyMeters: number | null;
-  ssidClaim: string;
-  wifiConnectedClaim: boolean;
   serverRoundTripMs: number | null;
   distanceMeters: number;
   status: PingStatus;
@@ -128,8 +126,6 @@ export interface PingCandidate {
   latitude: number;
   longitude: number;
   gpsAccuracyMeters: number | null;
-  ssidClaim: string;
-  wifiConnectedClaim: boolean;
   serverRoundTripMs: number | null;
   networkInfo?: PingNetworkInfo;
 }

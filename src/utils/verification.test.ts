@@ -24,15 +24,13 @@ function candidate(overrides: Partial<PingCandidate> = {}): PingCandidate {
     latitude: targetPin.latitude,
     longitude: targetPin.longitude,
     gpsAccuracyMeters: 24,
-    ssidClaim: targetPin.wifi.ssids[0] ?? "",
-    wifiConnectedClaim: true,
     serverRoundTripMs: 84,
     ...overrides,
   };
 }
 
 describe("verifyPing", () => {
-  it("verifies a ping that passes access code, geofence, accuracy, SSID, and server ping", () => {
+  it("verifies a ping that passes access code, geofence, accuracy, and server ping", () => {
     const ping = verifyPing(candidate());
 
     expect(ping.status).toBe("verified");
@@ -44,33 +42,6 @@ describe("verifyPing", () => {
 
     expect(ping.status).toBe("needs_review");
     expect(ping.reasons.join(" ")).toContain("GPS accuracy");
-  });
-
-  it("accepts assigned SSIDs case-insensitively with browser-style quote noise", () => {
-    const ping = verifyPing(candidate({ ssidClaim: '"nypl"' }));
-
-    expect(ping.status).toBe("verified");
-  });
-
-  it("rejects a ping when the SSID is not assigned to that pin", () => {
-    const ping = verifyPing(candidate({ ssidClaim: "CoffeeShopWiFi" }));
-
-    expect(ping.status).toBe("rejected");
-    expect(ping.reasons.join(" ")).toContain("not assigned");
-  });
-
-  it("rejects a ping when no assigned Wi-Fi is selected", () => {
-    const ping = verifyPing(candidate({ ssidClaim: "" }));
-
-    expect(ping.status).toBe("rejected");
-    expect(ping.reasons.join(" ")).toContain("assigned Wi-Fi");
-  });
-
-  it("rejects a ping when the walker does not confirm current Wi-Fi connection", () => {
-    const ping = verifyPing(candidate({ wifiConnectedClaim: false }));
-
-    expect(ping.status).toBe("rejected");
-    expect(ping.reasons.join(" ")).toContain("connected to the assigned Wi-Fi");
   });
 
   it("rejects stale or forged contributor access codes", () => {
@@ -122,23 +93,13 @@ describe("verifyPing", () => {
     expect(ping.reasons.join(" ")).toContain("outside");
   });
 
-  it("stress verifies every non-recon mapped pin at its own location with an assigned SSID", () => {
+  it("stress verifies every non-recon mapped pin at its own location without Wi-Fi self-report gates", () => {
     const failures = pins
       .filter((item) => item.wifi.accessType !== "needs-recon")
       .map((item) => verifyPing(candidate({ pin: item })))
       .filter((ping) => ping.status !== "verified");
 
     expect(failures).toEqual([]);
-  });
-
-  it("stress rejects off-assignment Wi-Fi claims for every mapped pin", () => {
-    const accepted = pins
-      .map((item) =>
-        verifyPing(candidate({ pin: item, ssidClaim: "__wrong_network__" })),
-      )
-      .filter((ping) => ping.status !== "rejected");
-
-    expect(accepted).toEqual([]);
   });
 
   it("stress rejects out-of-radius pings for every mapped pin", () => {
@@ -171,7 +132,7 @@ describe("verifyPing", () => {
     expect(verified).toEqual([]);
   });
 
-  it("keeps every mapped pin pingable through at least one assigned SSID", () => {
+  it("keeps every mapped pin labeled with at least one Wi-Fi network", () => {
     const missingAssignments = pins.filter(
       (item) =>
         item.wifi.ssids.length === 0 ||
@@ -186,9 +147,9 @@ describe("verifyPing", () => {
       pins.flatMap((item) => [
         { kind: "valid", ping: verifyPing(candidate({ pin: item })) },
         {
-          kind: "wrong-ssid",
+          kind: "bad-server-timing",
           ping: verifyPing(
-            candidate({ pin: item, ssidClaim: "__wrong_network__" }),
+            candidate({ pin: item, serverRoundTripMs: -1 }),
           ),
         },
         {

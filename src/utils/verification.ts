@@ -8,16 +8,6 @@ import type {
 } from "../types";
 import { distanceMeters } from "./geo";
 
-export function normalizeSsid(ssid: string) {
-  return ssid.trim().replace(/^["']|["']$/g, "").toLocaleLowerCase();
-}
-
-export function ssidMatches(claim: string, expected: string[]) {
-  const normalizedClaim = normalizeSsid(claim);
-
-  return expected.some((ssid) => normalizeSsid(ssid) === normalizedClaim);
-}
-
 export function verifyPing(candidate: PingCandidate): PingRecord {
   const hasUsableCoordinates =
     Number.isFinite(candidate.latitude) && Number.isFinite(candidate.longitude);
@@ -80,23 +70,6 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
     status = downgrade(status);
   }
 
-  if (!candidate.ssidClaim.trim()) {
-    reasons.push("Participant did not select an assigned Wi-Fi network.");
-    status = "rejected";
-  } else if (!ssidMatches(candidate.ssidClaim, candidate.pin.wifi.ssids)) {
-    reasons.push(
-      `Reported SSID is not assigned to this pin. Expected: ${candidate.pin.wifi.ssids.join(
-        " or ",
-      )}.`,
-    );
-    status = "rejected";
-  }
-
-  if (!candidate.wifiConnectedClaim) {
-    reasons.push("Participant did not confirm they were connected to the assigned Wi-Fi.");
-    status = "rejected";
-  }
-
   if (candidate.serverRoundTripMs === null) {
     reasons.push("The app could not confirm a live server ping.");
     status = downgrade(status);
@@ -124,15 +97,13 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
     latitude: candidate.latitude,
     longitude: candidate.longitude,
     gpsAccuracyMeters: candidate.gpsAccuracyMeters,
-    ssidClaim: candidate.ssidClaim.trim(),
-    wifiConnectedClaim: candidate.wifiConnectedClaim,
     serverRoundTripMs: candidate.serverRoundTripMs,
     distanceMeters: distance,
     status,
     reasons: reasons.length
       ? reasons
       : [
-          "Access code, geofence, GPS accuracy, SSID claim, and server ping all passed.",
+          "Access code, geofence, GPS accuracy, and server ping all passed.",
         ],
     networkInfo: candidate.networkInfo,
   };

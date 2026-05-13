@@ -1,12 +1,10 @@
 import { FormEvent, useEffect, useState } from "react";
 import {
-  Check,
   LocateFixed,
   MapPinCheckInside,
   Radio,
   ShieldCheck,
   TriangleAlert,
-  Wifi,
 } from "lucide-react";
 import type { Contributor, PingNetworkInfo, PingRecord, TourPin } from "../types";
 import { formatMeters, distanceMeters } from "../utils/geo";
@@ -22,8 +20,6 @@ interface PingPanelProps {
       latitude: number;
       longitude: number;
       gpsAccuracyMeters: number | null;
-      ssidClaim: string;
-      wifiConnectedClaim: boolean;
       serverRoundTripMs: number | null;
       networkInfo: PingNetworkInfo;
     },
@@ -45,8 +41,6 @@ export function PingPanel({
   maxGpsAccuracyMeters,
   onPing,
 }: PingPanelProps) {
-  const [ssidClaim, setSsidClaim] = useState(pin.wifi.ssids[0] ?? "");
-  const [wifiConnectedClaim, setWifiConnectedClaim] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [lastPing, setLastPing] = useState<PingRecord | null>(null);
@@ -65,8 +59,6 @@ export function PingPanel({
   });
 
   useEffect(() => {
-    setSsidClaim(pin.wifi.ssids[0] ?? "");
-    setWifiConnectedClaim(false);
     setMessage(null);
     setLastPing(null);
     setLocationProbe({
@@ -79,7 +71,7 @@ export function PingPanel({
       status: "idle",
       roundTripMs: null,
     });
-  }, [pin.id, pin.wifi.ssids]);
+  }, [pin.id]);
 
   async function requestLocation() {
     setLocationProbe((current) => ({
@@ -140,11 +132,6 @@ export function PingPanel({
       return;
     }
 
-    if (!wifiConnectedClaim) {
-      setMessage("Confirm that this device is connected to the assigned Wi-Fi.");
-      return;
-    }
-
     setBusy(true);
     setMessage(null);
     setServerProbe({
@@ -166,8 +153,6 @@ export function PingPanel({
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
         gpsAccuracyMeters: position.coords.accuracy,
-        ssidClaim,
-        wifiConnectedClaim,
         serverRoundTripMs,
         networkInfo: readNetworkInfo(),
       });
@@ -212,11 +197,6 @@ export function PingPanel({
           )}
         />
         <StatusItem
-          label="Wi-Fi"
-          status={wifiConnectedClaim && ssidClaim ? "passed" : "idle"}
-          detail={wifiConnectedClaim ? ssidClaim : "Confirm"}
-        />
-        <StatusItem
           label="Live ping"
           status={serverProbe.status}
           detail={
@@ -228,44 +208,6 @@ export function PingPanel({
       </ul>
 
       <form onSubmit={submit}>
-        <fieldset className="ssid-fieldset">
-          <legend>Assigned Wi-Fi</legend>
-          <div className="ssid-choice-list">
-            {pin.wifi.ssids.map((ssid) => (
-              <label
-                className={`ssid-choice ${ssidClaim === ssid ? "active" : ""}`}
-                key={ssid}
-                title={ssid}
-              >
-                <input
-                  className="ssid-choice-input"
-                  type="radio"
-                  name={`assigned-wifi-${pin.id}`}
-                  value={ssid}
-                  checked={ssidClaim === ssid}
-                  onChange={() => setSsidClaim(ssid)}
-                />
-                <span className="ssid-choice-check" aria-hidden="true">
-                  {ssidClaim === ssid ? <Check size={14} /> : null}
-                </span>
-                <span className="ssid-choice-name">{ssid}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <label className="wifi-confirm-row">
-          <input
-            type="checkbox"
-            checked={wifiConnectedClaim}
-            onChange={(event) => setWifiConnectedClaim(event.target.checked)}
-          />
-          <span>
-            <Wifi size={16} />
-            Connected to {ssidClaim || "assigned Wi-Fi"} now
-          </span>
-        </label>
-
         <div className="ping-actions">
           <button
             className="ghost-button"
@@ -279,7 +221,7 @@ export function PingPanel({
           <button
             className="primary-button ping-button"
             type="submit"
-            disabled={busy || !contributor || !ssidClaim || !wifiConnectedClaim}
+            disabled={busy || !contributor}
           >
             <LocateFixed size={18} />
             {busy ? "Checking..." : "Ping from here"}
@@ -322,14 +264,6 @@ export function PingPanel({
               {lastPing.serverRoundTripMs === null
                 ? "Failed"
                 : `${lastPing.serverRoundTripMs} ms`}
-            </dd>
-          </div>
-          <div>
-            <dt>Wi-Fi</dt>
-            <dd>
-              {lastPing.wifiConnectedClaim
-                ? lastPing.ssidClaim || "Confirmed"
-                : "Unconfirmed"}
             </dd>
           </div>
         </dl>
