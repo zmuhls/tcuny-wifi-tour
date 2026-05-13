@@ -1,12 +1,21 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Check, LocateFixed, Radio, ShieldCheck, TriangleAlert } from "lucide-react";
+import {
+  Check,
+  LocateFixed,
+  MapPinCheckInside,
+  Radio,
+  ShieldCheck,
+  TriangleAlert,
+  Wifi,
+} from "lucide-react";
 import type { Contributor, PingNetworkInfo, PingRecord, TourPin } from "../types";
-import { formatMeters } from "../utils/geo";
+import { formatMeters, distanceMeters } from "../utils/geo";
 import { getCurrentPosition, measureServerPing, readNetworkInfo } from "../utils/ping";
 
 interface PingPanelProps {
   pin: TourPin;
   contributor: Contributor | null;
+  maxGpsAccuracyMeters: number;
   onPing: (
     input: {
       pin: TourPin;
@@ -14,23 +23,114 @@ interface PingPanelProps {
       longitude: number;
       gpsAccuracyMeters: number | null;
       ssidClaim: string;
+      wifiConnectedClaim: boolean;
       serverRoundTripMs: number | null;
       networkInfo: PingNetworkInfo;
     },
   ) => PingRecord;
 }
 
-export function PingPanel({ pin, contributor, onPing }: PingPanelProps) {
+type ProbeStatus = "idle" | "checking" | "passed" | "review" | "failed";
+
+interface LocationProbe {
+  status: ProbeStatus;
+  distanceMeters: number | null;
+  accuracyMeters: number | null;
+  message: string;
+}
+
+export function PingPanel({
+  pin,
+  contributor,
+  maxGpsAccuracyMeters,
+  onPing,
+}: PingPanelProps) {
   const [ssidClaim, setSsidClaim] = useState(pin.wifi.ssids[0] ?? "");
+  const [wifiConnectedClaim, setWifiConnectedClaim] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [lastPing, setLastPing] = useState<PingRecord | null>(null);
+  const [locationProbe, setLocationProbe] = useState<LocationProbe>({
+    status: "idle",
+    distanceMeters: null,
+    accuracyMeters: null,
+    message: "Not requested",
+  });
+  const [serverProbe, setServerProbe] = useState<{
+    status: ProbeStatus;
+    roundTripMs: number | null;
+  }>({
+    status: "idle",
+    roundTripMs: null,
+  });
 
   useEffect(() => {
     setSsidClaim(pin.wifi.ssids[0] ?? "");
+    setWifiConnectedClaim(false);
     setMessage(null);
     setLastPing(null);
+    setLocationProbe({
+      status: "idle",
+      distanceMeters: null,
+      accuracyMeters: null,
+      message: "Not requested",
+    });
+    setServerProbe({
+      status: "idle",
+      roundTripMs: null,
+    });
   }, [pin.id, pin.wifi.ssids]);
+
+  async function requestLocation() {
+    setLocationProbe((current) => ({
+      ...current,
+      status: "checking",
+      message: "Requesting",
+    }));
+
+    try {
+      const position = await getCurrentPosition();
+      const distance = distanceMeters(
+        {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        },
+        {
+          latitude: pin.latitude,
+          longitude: pin.longitude,
+        },
+      );
+      const accuracy = position.coords.accuracy;
+      const insideRadius = distance <= pin.radiusMeters;
+      const hasFieldReadyAccuracy = accuracy <= maxGpsAccuracyMeters;
+      const status = !insideRadius
+        ? "failed"
+        : hasFieldReadyAccuracy
+          ? "passed"
+          : "review";
+
+      setLocationProbe({
+        status,
+        distanceMeters: distance,
+        accuracyMeters: accuracy,
+        message: insideRadius ? "Inside radius" : "Outside radius",
+      });
+
+      return position;
+    } catch (error) {
+      const geolocationError = error as Partial<GeolocationPositionError>;
+      setLocationProbe({
+        status: "failed",
+        distanceMeters: null,
+        accuracyMeters: null,
+        message:
+          typeof geolocationError.code === "number"
+            ? geolocationErrorMessage(geolocationError)
+            : "Unavailable",
+      });
+      throw error;
+    }
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -40,20 +140,34 @@ export function PingPanel({ pin, contributor, onPing }: PingPanelProps) {
       return;
     }
 
+    if (!wifiConnectedClaim) {
+      setMessage("Confirm that this device is connected to the assigned Wi-Fi.");
+      return;
+    }
+
     setBusy(true);
     setMessage(null);
+    setServerProbe({
+      status: "checking",
+      roundTripMs: null,
+    });
 
     try {
       const [position, serverRoundTripMs] = await Promise.all([
-        getCurrentPosition(),
+        requestLocation(),
         measureServerPing(),
       ]);
+      setServerProbe({
+        status: serverRoundTripMs === null ? "review" : "passed",
+        roundTripMs: serverRoundTripMs,
+      });
       const ping = onPing({
         pin,
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
         gpsAccuracyMeters: position.coords.accuracy,
         ssidClaim,
+        wifiConnectedClaim,
         serverRoundTripMs,
         networkInfo: readNetworkInfo(),
       });
@@ -82,10 +196,35 @@ export function PingPanel({ pin, contributor, onPing }: PingPanelProps) {
         </div>
       </div>
 
-      <ul className="criteria-list">
-        <li>Within {formatMeters(pin.radiusMeters)}</li>
-        <li>Assigned SSID</li>
-        <li>Live ping</li>
+      <ul className="criteria-list signal-check-list">
+        <StatusItem
+          label="Access code"
+          status={contributor ? "passed" : "failed"}
+          detail={contributor ? "Joined" : "Join first"}
+        />
+        <StatusItem
+          label="Location"
+          status={locationProbe.status}
+          detail={locationProbeDetail(
+            locationProbe,
+            pin.radiusMeters,
+            maxGpsAccuracyMeters,
+          )}
+        />
+        <StatusItem
+          label="Wi-Fi"
+          status={wifiConnectedClaim && ssidClaim ? "passed" : "idle"}
+          detail={wifiConnectedClaim ? ssidClaim : "Confirm"}
+        />
+        <StatusItem
+          label="Live ping"
+          status={serverProbe.status}
+          detail={
+            serverProbe.roundTripMs === null
+              ? "On submit"
+              : `${serverProbe.roundTripMs} ms`
+          }
+        />
       </ul>
 
       <form onSubmit={submit}>
@@ -114,10 +253,38 @@ export function PingPanel({ pin, contributor, onPing }: PingPanelProps) {
             ))}
           </div>
         </fieldset>
-        <button className="primary-button ping-button" type="submit" disabled={busy}>
-          <LocateFixed size={18} />
-          {busy ? "Checking..." : "Ping from here"}
-        </button>
+
+        <label className="wifi-confirm-row">
+          <input
+            type="checkbox"
+            checked={wifiConnectedClaim}
+            onChange={(event) => setWifiConnectedClaim(event.target.checked)}
+          />
+          <span>
+            <Wifi size={16} />
+            Connected to {ssidClaim || "assigned Wi-Fi"} now
+          </span>
+        </label>
+
+        <div className="ping-actions">
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={() => void requestLocation()}
+            disabled={busy || locationProbe.status === "checking"}
+          >
+            <MapPinCheckInside size={16} />
+            {locationProbe.status === "checking" ? "Checking..." : "Check location"}
+          </button>
+          <button
+            className="primary-button ping-button"
+            type="submit"
+            disabled={busy || !contributor || !ssidClaim || !wifiConnectedClaim}
+          >
+            <LocateFixed size={18} />
+            {busy ? "Checking..." : "Ping from here"}
+          </button>
+        </div>
       </form>
 
       {message ? (
@@ -157,10 +324,62 @@ export function PingPanel({ pin, contributor, onPing }: PingPanelProps) {
                 : `${lastPing.serverRoundTripMs} ms`}
             </dd>
           </div>
+          <div>
+            <dt>Wi-Fi</dt>
+            <dd>
+              {lastPing.wifiConnectedClaim
+                ? lastPing.ssidClaim || "Confirmed"
+                : "Unconfirmed"}
+            </dd>
+          </div>
         </dl>
       ) : null}
     </section>
   );
+}
+
+function StatusItem({
+  label,
+  status,
+  detail,
+}: {
+  label: string;
+  status: ProbeStatus;
+  detail: string;
+}) {
+  return (
+    <li className={`signal-status signal-${status}`}>
+      <span>{label}</span>
+      <strong>{detail}</strong>
+    </li>
+  );
+}
+
+function locationProbeDetail(
+  probe: LocationProbe,
+  radiusMeters: number,
+  maxGpsAccuracyMeters: number,
+) {
+  if (probe.status === "idle") {
+    return `Within ${formatMeters(radiusMeters)}`;
+  }
+
+  if (probe.status === "checking") {
+    return probe.message;
+  }
+
+  if (probe.distanceMeters !== null) {
+    const accuracy =
+      probe.accuracyMeters === null ? "" : ` / ${formatMeters(probe.accuracyMeters)}`;
+    const accuracyLabel =
+      probe.accuracyMeters !== null && probe.accuracyMeters > maxGpsAccuracyMeters
+        ? " accuracy"
+        : "";
+
+    return `${formatMeters(probe.distanceMeters)} away${accuracy}${accuracyLabel}`;
+  }
+
+  return probe.message;
 }
 
 function resultMessage(ping: PingRecord) {

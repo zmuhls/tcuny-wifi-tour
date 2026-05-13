@@ -868,10 +868,57 @@ dd {
   list-style: none;
 }
 
+.signal-check-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .criteria-list li {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 4px 6px;
+}
+
+.signal-status {
+  background: #fbfdfc;
+  display: grid;
+  gap: 2px;
+  min-height: 43px;
+}
+
+.signal-status span {
+  font-size: 0.62rem;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.signal-status strong {
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 690;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.signal-passed {
+  background: #eef8f1;
+  border-color: #afd8ba !important;
+}
+
+.signal-review {
+  background: #fff7e6;
+  border-color: #dfc173 !important;
+}
+
+.signal-failed {
+  background: #fff0ee;
+  border-color: #dcafa9 !important;
+}
+
+.signal-checking {
+  background: #eef7f5;
+  border-color: #96d2ca !important;
 }
 
 .ping-panel form {
@@ -953,8 +1000,50 @@ dd {
   overflow-wrap: anywhere;
 }
 
+.wifi-confirm-row {
+  align-items: center;
+  background: #f7fbfa;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  display: flex;
+  font-size: 0.79rem;
+  font-weight: 700;
+  gap: 9px;
+  min-height: 42px;
+  padding: 8px 9px;
+}
+
+.wifi-confirm-row input {
+  accent-color: var(--teal);
+  flex: 0 0 auto;
+  height: 16px;
+  min-height: 0;
+  padding: 0;
+  width: 16px;
+}
+
+.wifi-confirm-row span {
+  align-items: center;
+  display: inline-flex;
+  gap: 7px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.ping-actions {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+}
+
 .ping-button {
   width: 100%;
+}
+
+.ghost-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
 }
 
 .ping-result {
@@ -1171,6 +1260,11 @@ dd {
   .pin-card-actions,
   .pin-card-meta {
     gap: 6px;
+  }
+
+  .ping-actions,
+  .signal-check-list {
+    grid-template-columns: 1fr;
   }
 
   .icon-link,

@@ -19,21 +19,39 @@ export function ssidMatches(claim: string, expected: string[]) {
 }
 
 export function verifyPing(candidate: PingCandidate): PingRecord {
-  const distance = distanceMeters(
-    {
-      latitude: candidate.latitude,
-      longitude: candidate.longitude,
-    },
-    {
-      latitude: candidate.pin.latitude,
-      longitude: candidate.pin.longitude,
-    },
-  );
+  const hasUsableCoordinates =
+    Number.isFinite(candidate.latitude) && Number.isFinite(candidate.longitude);
+  const distance = hasUsableCoordinates
+    ? distanceMeters(
+        {
+          latitude: candidate.latitude,
+          longitude: candidate.longitude,
+        },
+        {
+          latitude: candidate.pin.latitude,
+          longitude: candidate.pin.longitude,
+        },
+      )
+    : Number.POSITIVE_INFINITY;
   const reasons: string[] = [];
   let status: PingStatus = "verified";
 
-  if (!candidate.contributor.accessCode) {
-    reasons.push("Contributor session is missing an event access code.");
+  if (candidate.contributor.eventId !== candidate.event.id) {
+    reasons.push("Contributor session is not attached to this event.");
+    status = "rejected";
+  }
+
+  if (
+    !candidate.event.accessCodes.includes(
+      candidate.contributor.accessCode.trim().toUpperCase(),
+    )
+  ) {
+    reasons.push("Contributor session does not have a valid event access code.");
+    status = "rejected";
+  }
+
+  if (!hasUsableCoordinates) {
+    reasons.push("GPS coordinates were not usable.");
     status = "rejected";
   }
 
@@ -47,6 +65,12 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
   if (candidate.gpsAccuracyMeters === null) {
     reasons.push("GPS accuracy was not reported by the device.");
     status = downgrade(status);
+  } else if (
+    !Number.isFinite(candidate.gpsAccuracyMeters) ||
+    candidate.gpsAccuracyMeters < 0
+  ) {
+    reasons.push("GPS accuracy was malformed.");
+    status = "rejected";
   } else if (candidate.gpsAccuracyMeters > candidate.event.maxGpsAccuracyMeters) {
     reasons.push(
       `GPS accuracy is ${Math.round(
@@ -68,9 +92,20 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
     status = "rejected";
   }
 
+  if (!candidate.wifiConnectedClaim) {
+    reasons.push("Participant did not confirm they were connected to the assigned Wi-Fi.");
+    status = "rejected";
+  }
+
   if (candidate.serverRoundTripMs === null) {
     reasons.push("The app could not confirm a live server ping.");
     status = downgrade(status);
+  } else if (
+    !Number.isFinite(candidate.serverRoundTripMs) ||
+    candidate.serverRoundTripMs < 0
+  ) {
+    reasons.push("Server ping timing was malformed.");
+    status = "rejected";
   }
 
   if (candidate.pin.wifi.accessType === "needs-recon") {
@@ -90,6 +125,7 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
     longitude: candidate.longitude,
     gpsAccuracyMeters: candidate.gpsAccuracyMeters,
     ssidClaim: candidate.ssidClaim.trim(),
+    wifiConnectedClaim: candidate.wifiConnectedClaim,
     serverRoundTripMs: candidate.serverRoundTripMs,
     distanceMeters: distance,
     status,

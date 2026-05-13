@@ -90,7 +90,15 @@ export function useTourStore() {
 
   const join = useCallback(
     (input: { displayName: string; teamName: string; accessCode: string }) => {
+      const displayName = input.displayName.trim();
       const normalizedCode = input.accessCode.trim().toUpperCase();
+
+      if (!displayName) {
+        return {
+          ok: false,
+          message: "Add a name before joining the tour.",
+        };
+      }
 
       if (!tourEvent.accessCodes.includes(normalizedCode)) {
         return {
@@ -102,7 +110,7 @@ export function useTourStore() {
       const nextContributor: Contributor = {
         id: crypto.randomUUID(),
         eventId: tourEvent.id,
-        displayName: input.displayName.trim(),
+        displayName,
         teamName: input.teamName.trim() || "Solo walkers",
         accessCode: normalizedCode,
         joinedAt: new Date().toISOString(),

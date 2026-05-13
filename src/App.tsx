@@ -50,6 +50,7 @@ const stageLabels: Record<RouteStage, string> = {
 
 export default function App() {
   const {
+    event,
     contributor,
     pings,
     anecdotes,
@@ -284,7 +285,12 @@ export default function App() {
 
       <aside className="detail-panel" aria-label="Selected access point">
         <PinCard pin={selectedPin} progress={getProgress(selectedPin)} selected />
-        <PingPanel pin={selectedPin} contributor={contributor} onPing={addPing} />
+        <PingPanel
+          pin={selectedPin}
+          contributor={contributor}
+          maxGpsAccuracyMeters={event.maxGpsAccuracyMeters}
+          onPing={addPing}
+        />
       </aside>
     </main>
   );

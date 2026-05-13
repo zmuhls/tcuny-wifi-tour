@@ -25,6 +25,7 @@ function candidate(overrides: Partial<PingCandidate> = {}): PingCandidate {
     longitude: targetPin.longitude,
     gpsAccuracyMeters: 24,
     ssidClaim: targetPin.wifi.ssids[0] ?? "",
+    wifiConnectedClaim: true,
     serverRoundTripMs: 84,
     ...overrides,
   };
@@ -63,6 +64,50 @@ describe("verifyPing", () => {
 
     expect(ping.status).toBe("rejected");
     expect(ping.reasons.join(" ")).toContain("assigned Wi-Fi");
+  });
+
+  it("rejects a ping when the walker does not confirm current Wi-Fi connection", () => {
+    const ping = verifyPing(candidate({ wifiConnectedClaim: false }));
+
+    expect(ping.status).toBe("rejected");
+    expect(ping.reasons.join(" ")).toContain("connected to the assigned Wi-Fi");
+  });
+
+  it("rejects stale or forged contributor access codes", () => {
+    const forged = verifyPing(
+      candidate({
+        contributor: {
+          ...contributor,
+          accessCode: "WALKER-FORGED",
+        },
+      }),
+    );
+    const staleEvent = verifyPing(
+      candidate({
+        contributor: {
+          ...contributor,
+          eventId: "old-event",
+        },
+      }),
+    );
+
+    expect(forged.status).toBe("rejected");
+    expect(forged.reasons.join(" ")).toContain("valid event access code");
+    expect(staleEvent.status).toBe("rejected");
+    expect(staleEvent.reasons.join(" ")).toContain("not attached to this event");
+  });
+
+  it("rejects malformed GPS and timing evidence", () => {
+    const malformedGps = verifyPing(candidate({ latitude: Number.NaN }));
+    const malformedAccuracy = verifyPing(candidate({ gpsAccuracyMeters: -1 }));
+    const malformedPing = verifyPing(candidate({ serverRoundTripMs: -10 }));
+
+    expect(malformedGps.status).toBe("rejected");
+    expect(malformedGps.reasons.join(" ")).toContain("GPS coordinates");
+    expect(malformedAccuracy.status).toBe("rejected");
+    expect(malformedAccuracy.reasons.join(" ")).toContain("GPS accuracy");
+    expect(malformedPing.status).toBe("rejected");
+    expect(malformedPing.reasons.join(" ")).toContain("Server ping timing");
   });
 
   it("rejects a ping outside the site geofence", () => {
