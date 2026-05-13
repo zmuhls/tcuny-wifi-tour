@@ -2478,6 +2478,80 @@ pins.push(
   })),
 );
 
+pins.push(...privateTestPinsFromEnv());
+
+function privateTestPinsFromEnv(): TourPin[] {
+  const enabled = readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_ENABLED") === "true";
+
+  if (!enabled) {
+    return [];
+  }
+
+  const latitude = readPrivatePinNumber("VITE_PRIVATE_TEST_PIN_LATITUDE");
+  const longitude = readPrivatePinNumber("VITE_PRIVATE_TEST_PIN_LONGITUDE");
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    return [];
+  }
+
+  const ssid = readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_SSID") || "Private network";
+  const address =
+    readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_ADDRESS") || "Private test address";
+  const name =
+    readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_NAME") || "Private test network";
+
+  return [
+    {
+      id: readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_ID") || "private-test-network",
+      name,
+      shortName:
+        readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_SHORT_NAME") || "Private test",
+      category: "public-service",
+      stage: "downtown",
+      role: "optional",
+      latitude,
+      longitude,
+      radiusMeters:
+        readPrivatePinNumber("VITE_PRIVATE_TEST_PIN_RADIUS_METERS") || 180,
+      address,
+      description:
+        "Local-only private test pin loaded from .env.local. It is omitted from the public GitHub Pages build unless explicitly configured there.",
+      wifi: {
+        provider:
+          readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_PROVIDER") ||
+          "Private local network",
+        ssids: [ssid],
+        accessType: "private-test",
+        locationType: "Private test address",
+        statusLabel: "Private local test network",
+        remarks: "For local ping testing only; not part of the public tour dataset.",
+        sourceId: "Local .env.local",
+        liveStatus: "unknown",
+      },
+      sourceLinks: [],
+      mapsQuery: readPrivatePinEnv("VITE_PRIVATE_TEST_PIN_MAPS_QUERY") || address,
+      pathways: ["transit"],
+      metadata: {
+        privateTest: "true",
+        sourceDataset: "Local .env.local",
+      },
+    },
+  ];
+}
+
+function readPrivatePinEnv(key: string) {
+  const env = import.meta.env as Record<string, string | boolean | undefined>;
+  const value = env[key];
+
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function readPrivatePinNumber(key: string) {
+  const value = Number(readPrivatePinEnv(key));
+
+  return Number.isFinite(value) ? value : Number.NaN;
+}
+
 export const sourceLinks = [
   { label: "NYC Wi-Fi Hotspot Locations", url: NYC_WIFI },
   { label: "LinkNYC Kiosk Status", url: LINK_STATUS },

@@ -158,6 +158,7 @@ function accessLabel(accessType: TourPin["wifi"]["accessType"]) {
     "limited-free": "Limited free",
     partner: "Partner",
     credentialed: "Credentialed",
+    "private-test": "Private test",
     "needs-recon": "Needs recon",
   };
 

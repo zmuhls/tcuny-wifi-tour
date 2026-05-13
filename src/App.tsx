@@ -48,6 +48,10 @@ const stageLabels: Record<RouteStage, string> = {
   return: "Return",
 };
 
+const initialPinId =
+  pins.find((pin) => pin.metadata?.privateTest === "true")?.id ??
+  "nypl-schwarzman";
+
 export default function App() {
   const {
     event,
@@ -61,13 +65,13 @@ export default function App() {
     getProgress,
     resetPings,
   } = useTourStore();
-  const [selectedPinId, setSelectedPinId] = useState("nypl-schwarzman");
+  const [selectedPinId, setSelectedPinId] = useState(initialPinId);
   const [focusRequest, setFocusRequest] = useState<{
     pinId: string;
     count: number;
     zoom: "near" | "close" | "overview";
   }>({
-    pinId: "nypl-schwarzman",
+    pinId: initialPinId,
     count: 0,
     zoom: "near",
   });

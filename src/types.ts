@@ -24,6 +24,7 @@ export type PinAvailability =
   | "limited-free"
   | "partner"
   | "credentialed"
+  | "private-test"
   | "needs-recon";
 
 export type PingStatus = "verified" | "needs_review" | "rejected";
