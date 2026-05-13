@@ -82,9 +82,15 @@ export function MapView({
     routeLayerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
 
-    setTimeout(() => map.invalidateSize(), 0);
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize({ animate: false });
+    });
+
+    resizeObserver.observe(elementRef.current);
+    setTimeout(() => map.invalidateSize({ animate: false }), 0);
 
     return () => {
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
     };
@@ -239,12 +245,16 @@ export function MapView({
       [selected.latitude, selected.longitude],
       {
         radius: selected.radiusMeters,
-        color: "#1f6f8b",
+        color: "#5aa8b5",
+        dashArray: "6 8",
         fillColor: "#7fd1c7",
-        fillOpacity: 0.12,
-        weight: 2,
+        fillOpacity: 0.06,
+        interactive: false,
+        opacity: 0.78,
+        weight: 1.25,
       },
     ).addTo(map);
+    selectedCircleRef.current.bringToBack();
   }, [pins, selectedPinId]);
 
   useEffect(() => {
@@ -270,17 +280,19 @@ export function MapView({
       return;
     }
 
-    const targetZoom = focusRequest.zoom === "close" ? 18 : 16;
-
-    map.flyTo(
-      [selected.latitude, selected.longitude],
-      Math.max(map.getZoom(), targetZoom),
-      {
-        animate: true,
-        duration: 0.65,
-        easeLinearity: 0.25,
-      },
+    const targetZoom = focusRequest.zoom === "close" ? 16 : 15;
+    const selectedBounds = L.latLng(selected.latitude, selected.longitude).toBounds(
+      Math.max(selected.radiusMeters * 2.6, 220),
     );
+
+    map.flyToBounds(selectedBounds, {
+      animate: true,
+      duration: 0.65,
+      easeLinearity: 0.25,
+      maxZoom: targetZoom,
+      paddingTopLeft: [34, 88],
+      paddingBottomRight: [34, 54],
+    });
   }, [focusRequest, pins, walkingRoutePath]);
 
   return <div className="map-canvas" ref={elementRef} aria-label="Tour map" />;

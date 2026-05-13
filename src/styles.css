@@ -371,6 +371,32 @@ h2 {
   display: block;
 }
 
+.join-form-header,
+.join-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.join-form-header .eyebrow {
+  margin-bottom: 0;
+}
+
+.join-actions {
+  align-items: stretch;
+}
+
+.join-actions .primary-button {
+  flex: 1 1 auto;
+}
+
+.compact-button {
+  font-size: 0.76rem;
+  min-height: 32px;
+  padding: 0 8px;
+}
+
 .wifi-wall-panel {
   margin-bottom: 10px;
   overflow: hidden;
@@ -1114,8 +1140,12 @@ dd {
   }
 
   .map-area {
+    align-self: start;
     height: 66svh;
     min-height: 66svh;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 
   .detail-panel {
@@ -1148,10 +1178,12 @@ dd {
   }
 
   .map-area {
+    align-self: stretch;
     height: clamp(340px, 58svh, 560px);
     height: clamp(340px, 58dvh, 560px);
     min-height: 0;
     position: relative;
+    top: auto;
     z-index: 1;
   }
 

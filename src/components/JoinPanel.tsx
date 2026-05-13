@@ -1,5 +1,5 @@
-import { FormEvent, useState } from "react";
-import { LogIn, UserRound } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import { LogIn, LogOut, UserRound } from "lucide-react";
 import type { Contributor } from "../types";
 
 interface JoinPanelProps {
@@ -13,18 +13,30 @@ interface JoinPanelProps {
 }
 
 export function JoinPanel({ contributor, onJoin, onLeave }: JoinPanelProps) {
-  const [displayName, setDisplayName] = useState("");
-  const [teamName, setTeamName] = useState("");
-  const [accessCode, setAccessCode] = useState("");
+  const [editing, setEditing] = useState(!contributor);
+  const [displayName, setDisplayName] = useState(contributor?.displayName ?? "");
+  const [teamName, setTeamName] = useState(contributor?.teamName ?? "");
+  const [accessCode, setAccessCode] = useState(contributor?.accessCode ?? "");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    setDisplayName(contributor?.displayName ?? "");
+    setTeamName(contributor?.teamName ?? "");
+    setAccessCode(contributor?.accessCode ?? "");
+    setEditing(!contributor);
+    setMessage("");
+  }, [contributor]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
     const result = onJoin({ displayName, teamName, accessCode });
     setMessage(result.message);
+    if (result.ok) {
+      setEditing(false);
+    }
   }
 
-  if (contributor) {
+  if (contributor && !editing) {
     return (
       <section className="join-panel joined">
         <div>
@@ -32,9 +44,13 @@ export function JoinPanel({ contributor, onJoin, onLeave }: JoinPanelProps) {
           <strong>{contributor.displayName}</strong>
           <span>{contributor.teamName}</span>
         </div>
-        <button className="icon-button text-button" type="button" onClick={onLeave}>
+        <button
+          className="icon-button text-button"
+          type="button"
+          onClick={() => setEditing(true)}
+        >
           <UserRound size={17} />
-          Switch
+          Edit / switch
         </button>
       </section>
     );
@@ -42,7 +58,26 @@ export function JoinPanel({ contributor, onJoin, onLeave }: JoinPanelProps) {
 
   return (
     <form className="join-panel" onSubmit={submit}>
-      <p className="eyebrow">Access code required to ping</p>
+      <div className="join-form-header">
+        <p className="eyebrow">
+          {contributor ? "Edit participant" : "Access code required to ping"}
+        </p>
+        {contributor ? (
+          <button
+            className="text-button compact-button"
+            type="button"
+            onClick={() => {
+              setEditing(false);
+              setDisplayName(contributor.displayName);
+              setTeamName(contributor.teamName);
+              setAccessCode(contributor.accessCode);
+              setMessage("");
+            }}
+          >
+            Cancel
+          </button>
+        ) : null}
+      </div>
       <label>
         Name
         <input
@@ -70,10 +105,29 @@ export function JoinPanel({ contributor, onJoin, onLeave }: JoinPanelProps) {
           autoCapitalize="characters"
         />
       </label>
-      <button className="primary-button" type="submit">
-        <LogIn size={18} />
-        Join tour
-      </button>
+      <div className="join-actions">
+        <button className="primary-button" type="submit">
+          <LogIn size={18} />
+          {contributor ? "Save participant" : "Join tour"}
+        </button>
+        {contributor ? (
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={() => {
+              onLeave();
+              setEditing(true);
+              setDisplayName("");
+              setTeamName("");
+              setAccessCode("");
+              setMessage("Saved participant cleared on this device.");
+            }}
+          >
+            <LogOut size={17} />
+            Clear
+          </button>
+        ) : null}
+      </div>
       {message ? (
         <p className="form-note" role="status" aria-live="polite">
           {message}
