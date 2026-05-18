@@ -11,13 +11,27 @@ const CUNY_EDUROAM =
 const CUNY_LOCATIONS =
   "https://data.ny.gov/Education/City-University-of-New-York-CUNY-University-Campus/i5b5-imzn/about";
 const BARUCH_WIFI = "https://bctc.baruch.cuny.edu/wifi/";
+const BARUCH_BUILDING_ADDRESSES =
+  "https://adminfinance.baruch.cuny.edu/wp-content/uploads/sites/25/2026/04/Building-Addresses-Designations-1.pdf";
 const BMCC_WIFI =
   "https://servicedesk.bmcc.cuny.edu/TDClient/33/Portal/KB/?CategoryID=12";
 const CCNY_WIFI =
   "https://www.ccny.cuny.edu/it/security_wireless-network-access-policy";
+const CCNY_CWE = "https://www.ccny.cuny.edu/cwe/about";
+const CCNY_CAMPUS_DIRECTIONS = "https://english.ccny.cuny.edu/directions/";
 const GC_EDUROAM =
   "https://www.gc.cuny.edu/sites/default/files/2023-10/How-do-I-connect-to-eduroam-Wifi-Network.pdf";
+const HUNTER_CAMPUS_INFO =
+  "https://www.hunter.cuny.edu/about/campus-information/";
 const HUNTER_EDUROAM = "https://library.hunter.cuny.edu/news/eduroam";
+const HUNTER_BROOKDALE =
+  "https://www.hunter.cuny.edu/about/campus-information/brookdale-campus/";
+const HUNTER_MFA =
+  "https://www.hunter.cuny.edu/about/campus-information/mfa-building/";
+const HUNTER_ROOSEVELT =
+  "https://www.hunter.cuny.edu/about/campus-information/roosevelt-house/";
+const HUNTER_SILBERMAN =
+  "https://www.hunter.cuny.edu/central-reservations-and-events/silberman-school-of-social-work/";
 const JOHN_JAY_WIFI = "https://www.lib.jjay.cuny.edu/content/connecting-internet";
 const PARKS_WIFI = "https://www.nycgovparks.org/facilities/wifi";
 const COMPUTER_CENTERS =
@@ -1923,6 +1937,84 @@ const cunyCampusRecords: ExpandedWifiRecord[] = [
     ],
   },
   {
+    id: "cuny-baruch-newman-library",
+    name: "Baruch College Newman Library and Technology Building",
+    shortName: "Baruch Newman",
+    category: "cuny",
+    stage: "midtown",
+    latitude: 40.74098,
+    longitude: -73.98252,
+    radiusMeters: 110,
+    address: "151 East 25th Street",
+    description:
+      "Baruch library and technology building plot for testing campus Wi-Fi and library-adjacent CUNY infrastructure near the 23rd Street corridor.",
+    provider: "CUNY",
+    ssid: ["eduroam", "Baruch", "Baruch-Events"],
+    accessType: "credentialed",
+    locationType: "CUNY library / technology building",
+    statusLabel: "CUNY eduroam plus Baruch/event guest Wi-Fi",
+    remarks:
+      "Newman Library access and guest eligibility may vary; use as a CUNY credentialed or field-confirmed guest layer.",
+    sourceId: "Baruch Newman Library / CUNY eduroam",
+    pathways: ["spine", "east"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "Baruch WIFI", url: BARUCH_WIFI },
+      { label: "Newman Library", url: "https://library.baruch.cuny.edu/about/" },
+      { label: "Baruch building addresses", url: BARUCH_BUILDING_ADDRESSES },
+    ],
+  },
+  {
+    id: "cuny-baruch-field-building",
+    name: "Baruch College Lawrence and Eris Field Building",
+    shortName: "Baruch 17 Lex",
+    category: "cuny",
+    stage: "midtown",
+    latitude: 40.73979,
+    longitude: -73.98473,
+    radiusMeters: 110,
+    address: "17 Lexington Avenue",
+    provider: "CUNY",
+    ssid: ["eduroam", "Baruch", "Baruch-Events"],
+    accessType: "credentialed",
+    locationType: "CUNY campus building",
+    statusLabel: "CUNY eduroam plus Baruch/event guest Wi-Fi",
+    remarks:
+      "Known locally as 17 Lex / the 23rd Street Building; event guest access requires Baruch host setup.",
+    sourceId: "Baruch building addresses / Baruch WIFI",
+    pathways: ["spine", "east"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "Baruch WIFI", url: BARUCH_WIFI },
+      { label: "Baruch building addresses", url: BARUCH_BUILDING_ADDRESSES },
+    ],
+  },
+  {
+    id: "cuny-baruch-admin",
+    name: "Baruch College Administration Building",
+    shortName: "Baruch Admin",
+    category: "cuny",
+    stage: "midtown",
+    latitude: 40.73899,
+    longitude: -73.98416,
+    radiusMeters: 100,
+    address: "133 East 22nd Street",
+    provider: "CUNY",
+    ssid: ["eduroam", "Baruch", "Baruch-Events"],
+    accessType: "credentialed",
+    locationType: "CUNY campus building",
+    statusLabel: "CUNY eduroam plus Baruch/event guest Wi-Fi",
+    remarks:
+      "Administrative campus building; guest access should be prearranged or field-confirmed.",
+    sourceId: "Baruch building addresses / Baruch WIFI",
+    pathways: ["spine", "east"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "Baruch WIFI", url: BARUCH_WIFI },
+      { label: "Baruch building addresses", url: BARUCH_BUILDING_ADDRESSES },
+    ],
+  },
+  {
     id: "cuny-bmcc-main",
     name: "Borough of Manhattan Community College",
     shortName: "BMCC Main",
@@ -2014,6 +2106,36 @@ const cunyCampusRecords: ExpandedWifiRecord[] = [
     sourceLinks: [
       { label: "CUNY eduroam", url: CUNY_EDUROAM },
       { label: "BMCC Wi-Fi", url: BMCC_WIFI },
+    ],
+  },
+  {
+    id: "cuny-ccny-cwe",
+    name: "City College Center for Worker Education",
+    shortName: "CCNY CWE",
+    category: "cuny",
+    stage: "downtown",
+    latitude: 40.7059,
+    longitude: -74.0138,
+    radiusMeters: 120,
+    address: "25 Broadway, 7th Floor",
+    description:
+      "Lower Manhattan CCNY satellite campus in the Cunard Building, useful as a downtown CUNY extension plot near transit.",
+    provider: "CUNY",
+    ssid: ["eduroam", "CUNY Guest"],
+    accessType: "credentialed",
+    locationType: "CUNY satellite campus",
+    statusLabel: "CUNY eduroam; guest/community layer to confirm",
+    remarks:
+      "Shares the 25 Broadway building with BMCC continuing education; use floor/institution metadata to distinguish field observations.",
+    sourceId: "CCNY Center for Worker Education / CUNY eduroam",
+    pathways: ["west", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "CCNY CWE", url: CCNY_CWE },
+      {
+        label: "CCNY CWE Library",
+        url: "https://library.ccny.cuny.edu/cwelibrary/ContactAndOpeningHours",
+      },
     ],
   },
   {
@@ -2164,6 +2286,131 @@ const cunyCampusRecords: ExpandedWifiRecord[] = [
     ],
   },
   {
+    id: "cuny-ccny-shepard",
+    name: "City College Shepard Hall",
+    shortName: "CCNY Shepard",
+    category: "cuny",
+    stage: "uptown",
+    latitude: 40.82039,
+    longitude: -73.94906,
+    radiusMeters: 120,
+    address: "259 Convent Avenue",
+    provider: "CUNY",
+    ssid: ["eduroam", "ccny-wifi", "ccny-guest"],
+    accessType: "credentialed",
+    locationType: "CUNY campus building",
+    statusLabel: "CUNY eduroam plus CCNY campus/guest Wi-Fi",
+    remarks:
+      "CCNY campus building; visitor guest access requires registration or field confirmation.",
+    sourceId: "CCNY directions / CCNY wireless policy",
+    pathways: ["east", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "CCNY wireless policy", url: CCNY_WIFI },
+      { label: "CCNY campus directions", url: CCNY_CAMPUS_DIRECTIONS },
+    ],
+  },
+  {
+    id: "cuny-ccny-steinman",
+    name: "City College Steinman Hall",
+    shortName: "CCNY Steinman",
+    category: "cuny",
+    stage: "uptown",
+    latitude: 40.82086,
+    longitude: -73.9484,
+    radiusMeters: 120,
+    address: "275 Convent Avenue",
+    provider: "CUNY",
+    ssid: ["eduroam", "ccny-wifi", "ccny-guest"],
+    accessType: "credentialed",
+    locationType: "CUNY campus building",
+    statusLabel: "CUNY eduroam plus CCNY campus/guest Wi-Fi",
+    remarks:
+      "Engineering campus building; visitor guest access requires registration or field confirmation.",
+    sourceId: "CCNY directions / CCNY wireless policy",
+    pathways: ["east", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "CCNY wireless policy", url: CCNY_WIFI },
+      { label: "CCNY campus directions", url: CCNY_CAMPUS_DIRECTIONS },
+    ],
+  },
+  {
+    id: "cuny-ccny-marshak",
+    name: "City College Marshak Science Building",
+    shortName: "CCNY Marshak",
+    category: "cuny",
+    stage: "uptown",
+    latitude: 40.8197,
+    longitude: -73.94824,
+    radiusMeters: 120,
+    address: "181 Convent Avenue",
+    provider: "CUNY",
+    ssid: ["eduroam", "ccny-wifi", "ccny-guest"],
+    accessType: "credentialed",
+    locationType: "CUNY campus building",
+    statusLabel: "CUNY eduroam plus CCNY campus/guest Wi-Fi",
+    remarks:
+      "Science campus building; visitor guest access requires registration or field confirmation.",
+    sourceId: "CCNY directions / CCNY wireless policy",
+    pathways: ["east", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "CCNY wireless policy", url: CCNY_WIFI },
+      { label: "CCNY campus directions", url: CCNY_CAMPUS_DIRECTIONS },
+    ],
+  },
+  {
+    id: "cuny-ccny-spitzer",
+    name: "City College Spitzer School of Architecture",
+    shortName: "CCNY Spitzer",
+    category: "cuny",
+    stage: "uptown",
+    latitude: 40.81875,
+    longitude: -73.9501,
+    radiusMeters: 120,
+    address: "141 Convent Avenue",
+    provider: "CUNY",
+    ssid: ["eduroam", "ccny-wifi", "ccny-guest"],
+    accessType: "credentialed",
+    locationType: "CUNY campus building",
+    statusLabel: "CUNY eduroam plus CCNY campus/guest Wi-Fi",
+    remarks:
+      "Architecture campus building; visitor guest access requires registration or field confirmation.",
+    sourceId: "CCNY directions / CCNY wireless policy",
+    pathways: ["east", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "CCNY wireless policy", url: CCNY_WIFI },
+      { label: "CCNY campus directions", url: CCNY_CAMPUS_DIRECTIONS },
+    ],
+  },
+  {
+    id: "cuny-ccny-harris",
+    name: "City College Harris Hall",
+    shortName: "CCNY Harris",
+    category: "cuny",
+    stage: "uptown",
+    latitude: 40.82138,
+    longitude: -73.94726,
+    radiusMeters: 120,
+    address: "1589 Amsterdam Avenue",
+    provider: "CUNY",
+    ssid: ["eduroam", "ccny-wifi", "ccny-guest"],
+    accessType: "credentialed",
+    locationType: "CUNY campus building",
+    statusLabel: "CUNY eduroam plus CCNY campus/guest Wi-Fi",
+    remarks:
+      "Medical-campus-adjacent CCNY building; visitor guest access requires registration or field confirmation.",
+    sourceId: "CCNY directions / CCNY wireless policy",
+    pathways: ["east", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "CCNY wireless policy", url: CCNY_WIFI },
+      { label: "CCNY campus directions", url: CCNY_CAMPUS_DIRECTIONS },
+    ],
+  },
+  {
     id: "cuny-asrc",
     name: "CUNY Advanced Science Research Center",
     shortName: "CUNY ASRC",
@@ -2234,6 +2481,108 @@ const cunyCampusRecords: ExpandedWifiRecord[] = [
       { label: "CUNY eduroam", url: CUNY_EDUROAM },
       { label: "Hunter eduroam", url: HUNTER_EDUROAM },
       { label: "CUNY campus locations", url: CUNY_LOCATIONS },
+    ],
+  },
+  {
+    id: "cuny-hunter-brookdale",
+    name: "Hunter College Brookdale Campus",
+    shortName: "Hunter Brookdale",
+    category: "cuny",
+    stage: "midtown",
+    latitude: 40.73766,
+    longitude: -73.97518,
+    radiusMeters: 150,
+    address: "425 East 25th Street",
+    description:
+      "Hunter School of Nursing and School of Health Professions campus, useful as an east-side CUNY Wi-Fi plot near the 23rd Street corridor.",
+    provider: "CUNY",
+    ssid: ["eduroam", "HunterSecure", "CUNY Guest"],
+    accessType: "credentialed",
+    locationType: "CUNY health sciences campus",
+    statusLabel: "CUNY eduroam plus Hunter campus Wi-Fi",
+    remarks:
+      "Visitors must bring photo ID to enter Brookdale; guest network availability should be prearranged or field-confirmed.",
+    sourceId: "Hunter Brookdale campus / Hunter eduroam",
+    pathways: ["east", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "Hunter eduroam", url: HUNTER_EDUROAM },
+      { label: "Hunter Brookdale campus", url: HUNTER_BROOKDALE },
+    ],
+  },
+  {
+    id: "cuny-hunter-roosevelt",
+    name: "Hunter College Roosevelt House",
+    shortName: "Roosevelt House",
+    category: "cuny",
+    stage: "uptown",
+    latitude: 40.76616,
+    longitude: -73.96862,
+    radiusMeters: 110,
+    address: "47-49 East 65th Street",
+    provider: "CUNY",
+    ssid: ["eduroam", "HunterSecure", "CUNY Guest"],
+    accessType: "credentialed",
+    locationType: "CUNY public policy institute",
+    statusLabel: "CUNY eduroam plus Hunter campus Wi-Fi",
+    remarks:
+      "Public-program venue and Hunter campus facility; guest access should be confirmed for events.",
+    sourceId: "Hunter Roosevelt House / Hunter eduroam",
+    pathways: ["east", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "Hunter eduroam", url: HUNTER_EDUROAM },
+      { label: "Roosevelt House", url: HUNTER_ROOSEVELT },
+    ],
+  },
+  {
+    id: "cuny-hunter-silberman",
+    name: "Hunter College Silberman School of Social Work",
+    shortName: "Hunter Silberman",
+    category: "cuny",
+    stage: "uptown",
+    latitude: 40.79951,
+    longitude: -73.93872,
+    radiusMeters: 140,
+    address: "2180 Third Avenue",
+    provider: "CUNY",
+    ssid: ["eduroam", "HunterSecure", "CUNY Guest"],
+    accessType: "credentialed",
+    locationType: "CUNY school / library campus",
+    statusLabel: "CUNY eduroam plus Hunter campus Wi-Fi",
+    remarks:
+      "East Harlem Hunter campus with Social Work and Urban Public Health library; guest access should be field-confirmed.",
+    sourceId: "Hunter Silberman campus / Hunter eduroam",
+    pathways: ["east", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "Hunter eduroam", url: HUNTER_EDUROAM },
+      { label: "Silberman School", url: HUNTER_SILBERMAN },
+    ],
+  },
+  {
+    id: "cuny-hunter-mfa",
+    name: "Hunter College MFA Building",
+    shortName: "Hunter MFA",
+    category: "cuny",
+    stage: "downtown",
+    latitude: 40.72313,
+    longitude: -74.00867,
+    radiusMeters: 120,
+    address: "205 Hudson Street",
+    provider: "CUNY",
+    ssid: ["eduroam", "HunterSecure", "CUNY Guest"],
+    accessType: "credentialed",
+    locationType: "CUNY arts campus building",
+    statusLabel: "CUNY eduroam plus Hunter campus Wi-Fi",
+    remarks:
+      "Tribeca studio-art campus; guest/community access should be prearranged or field-confirmed.",
+    sourceId: "Hunter MFA building / Hunter eduroam",
+    pathways: ["west", "transit"],
+    sourceLinks: [
+      { label: "CUNY eduroam", url: CUNY_EDUROAM },
+      { label: "Hunter eduroam", url: HUNTER_EDUROAM },
+      { label: "Hunter MFA building", url: HUNTER_MFA },
     ],
   },
   {
@@ -2560,9 +2909,17 @@ export const sourceLinks = [
   { label: "CUNY eduroam", url: CUNY_EDUROAM },
   { label: "CUNY Campus Locations", url: CUNY_LOCATIONS },
   { label: "Baruch WIFI", url: BARUCH_WIFI },
+  { label: "Baruch Building Addresses", url: BARUCH_BUILDING_ADDRESSES },
   { label: "BMCC Wi-Fi", url: BMCC_WIFI },
   { label: "CCNY Wireless Policy", url: CCNY_WIFI },
+  { label: "CCNY Center for Worker Education", url: CCNY_CWE },
+  { label: "CCNY Campus Directions", url: CCNY_CAMPUS_DIRECTIONS },
+  { label: "Hunter Campus Information", url: HUNTER_CAMPUS_INFO },
   { label: "Hunter eduroam", url: HUNTER_EDUROAM },
+  { label: "Hunter Brookdale Campus", url: HUNTER_BROOKDALE },
+  { label: "Hunter MFA Building", url: HUNTER_MFA },
+  { label: "Hunter Roosevelt House", url: HUNTER_ROOSEVELT },
+  { label: "Hunter Silberman School", url: HUNTER_SILBERMAN },
   { label: "John Jay Wi-Fi", url: JOHN_JAY_WIFI },
   { label: "NYC Parks Wi-Fi", url: PARKS_WIFI },
   { label: "Citywide Public Computer Centers", url: COMPUTER_CENTERS },
