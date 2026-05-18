@@ -83,6 +83,9 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
 
   if (candidate.pin.wifi.accessType === "needs-recon") {
     reasons.push("This pin is marked needs-recon and requires leader review.");
+    if (candidate.reconWifiReport?.networkName) {
+      reasons.push("Reported Wi-Fi details were captured for leader review.");
+    }
     status = downgrade(status);
   }
 
@@ -106,6 +109,7 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
           "Access code, geofence, GPS accuracy, and server ping all passed.",
         ],
     networkInfo: candidate.networkInfo,
+    reconWifiReport: candidate.reconWifiReport,
   };
 }
 

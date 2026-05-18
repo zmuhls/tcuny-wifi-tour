@@ -90,6 +90,11 @@ export interface PingNetworkInfo {
   saveData?: boolean;
 }
 
+export interface ReconWifiReport {
+  networkName?: string;
+  accessNote?: string;
+}
+
 export interface PingRecord {
   id: string;
   eventId: string;
@@ -106,6 +111,7 @@ export interface PingRecord {
   status: PingStatus;
   reasons: string[];
   networkInfo?: PingNetworkInfo;
+  reconWifiReport?: ReconWifiReport;
 }
 
 export interface AnecdoteRecord {
@@ -129,6 +135,7 @@ export interface PingCandidate {
   gpsAccuracyMeters: number | null;
   serverRoundTripMs: number | null;
   networkInfo?: PingNetworkInfo;
+  reconWifiReport?: ReconWifiReport;
 }
 
 export interface PinProgress {

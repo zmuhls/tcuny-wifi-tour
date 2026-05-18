@@ -142,6 +142,23 @@ describe("verifyPing", () => {
     expect(missingAssignments).toEqual([]);
   });
 
+  it("captures optional recon Wi-Fi details without making them a checkoff gate", () => {
+    const reconPin = pins.find((item) => item.id === "third-space-bushwick-bakery")!;
+    const ping = verifyPing(
+      candidate({
+        pin: reconPin,
+        reconWifiReport: {
+          networkName: "Bakery Guest",
+          accessNote: "Ask at counter.",
+        },
+      }),
+    );
+
+    expect(ping.status).toBe("needs_review");
+    expect(ping.reconWifiReport?.networkName).toBe("Bakery Guest");
+    expect(ping.reasons.join(" ")).toContain("leader review");
+  });
+
   it("stress handles repeated mixed ping bursts without false checkoffs", () => {
     const attempts = Array.from({ length: 10 }).flatMap(() =>
       pins.flatMap((item) => [

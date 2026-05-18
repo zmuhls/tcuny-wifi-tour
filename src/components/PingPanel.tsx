@@ -6,7 +6,13 @@ import {
   ShieldCheck,
   TriangleAlert,
 } from "lucide-react";
-import type { Contributor, PingNetworkInfo, PingRecord, TourPin } from "../types";
+import type {
+  Contributor,
+  PingNetworkInfo,
+  PingRecord,
+  ReconWifiReport,
+  TourPin,
+} from "../types";
 import { formatMeters, distanceMeters } from "../utils/geo";
 import { getCurrentPosition, measureServerPing, readNetworkInfo } from "../utils/ping";
 
@@ -22,6 +28,7 @@ interface PingPanelProps {
       gpsAccuracyMeters: number | null;
       serverRoundTripMs: number | null;
       networkInfo: PingNetworkInfo;
+      reconWifiReport?: ReconWifiReport;
     },
   ) => PingRecord;
 }
@@ -57,8 +64,11 @@ export function PingPanel({
     status: "idle",
     roundTripMs: null,
   });
+  const [reconNetworkName, setReconNetworkName] = useState("");
+  const [reconAccessNote, setReconAccessNote] = useState("");
   const fieldPrompt =
     typeof pin.metadata?.fieldPrompt === "string" ? pin.metadata.fieldPrompt : null;
+  const acceptsReconDetails = pin.wifi.accessType === "needs-recon";
 
   useEffect(() => {
     setMessage(null);
@@ -73,6 +83,8 @@ export function PingPanel({
       status: "idle",
       roundTripMs: null,
     });
+    setReconNetworkName("");
+    setReconAccessNote("");
   }, [pin.id]);
 
   async function requestLocation() {
@@ -157,6 +169,9 @@ export function PingPanel({
         gpsAccuracyMeters: position.coords.accuracy,
         serverRoundTripMs,
         networkInfo: readNetworkInfo(),
+        reconWifiReport: acceptsReconDetails
+          ? normalizeReconReport(reconNetworkName, reconAccessNote)
+          : undefined,
       });
 
       setLastPing(ping);
@@ -212,6 +227,29 @@ export function PingPanel({
       {fieldPrompt ? <p className="ping-field-note">{fieldPrompt}</p> : null}
 
       <form onSubmit={submit}>
+        {acceptsReconDetails ? (
+          <div className="recon-fields" aria-label="Optional Wi-Fi recon details">
+            <label>
+              Wi-Fi name
+              <input
+                autoComplete="off"
+                maxLength={80}
+                placeholder="Network name, if shared"
+                value={reconNetworkName}
+                onChange={(event) => setReconNetworkName(event.target.value)}
+              />
+            </label>
+            <label>
+              Password or access note
+              <textarea
+                maxLength={160}
+                placeholder="Only record details staff are willing to share"
+                value={reconAccessNote}
+                onChange={(event) => setReconAccessNote(event.target.value)}
+              />
+            </label>
+          </div>
+        ) : null}
         <div className="ping-actions">
           <button
             className="ghost-button"
@@ -272,6 +310,18 @@ export function PingPanel({
                 : `${lastPing.serverRoundTripMs} ms`}
             </dd>
           </div>
+          {lastPing.reconWifiReport?.networkName ? (
+            <div>
+              <dt>Wi-Fi name</dt>
+              <dd>{lastPing.reconWifiReport.networkName}</dd>
+            </div>
+          ) : null}
+          {lastPing.reconWifiReport?.accessNote ? (
+            <div>
+              <dt>Access note</dt>
+              <dd>{lastPing.reconWifiReport.accessNote}</dd>
+            </div>
+          ) : null}
         </dl>
       ) : null}
     </section>
@@ -320,6 +370,25 @@ function locationProbeDetail(
   }
 
   return probe.message;
+}
+
+function normalizeReconReport(
+  networkName: string,
+  accessNote: string,
+): ReconWifiReport | undefined {
+  const report: ReconWifiReport = {};
+  const trimmedNetworkName = networkName.trim().slice(0, 80);
+  const trimmedAccessNote = accessNote.trim().slice(0, 160);
+
+  if (trimmedNetworkName) {
+    report.networkName = trimmedNetworkName;
+  }
+
+  if (trimmedAccessNote) {
+    report.accessNote = trimmedAccessNote;
+  }
+
+  return report.networkName || report.accessNote ? report : undefined;
 }
 
 function resultMessage(ping: PingRecord) {
