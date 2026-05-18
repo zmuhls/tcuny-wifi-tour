@@ -211,9 +211,9 @@ export function MapView({
 
     if (!routeFitRef.current && (pins.length > 1 || routeLatLngs.length > 1)) {
       const initialLatLngs =
-        pins.length > 1
-          ? pins.map((pin) => L.latLng(pin.latitude, pin.longitude))
-          : routeLatLngs;
+        routeLatLngs.length > 1
+          ? routeLatLngs
+          : pins.map((pin) => L.latLng(pin.latitude, pin.longitude));
       const bounds = L.latLngBounds(initialLatLngs);
       map.fitBounds(bounds, {
         paddingTopLeft: [30, 30],

@@ -31,6 +31,8 @@ export function PinCard({
   )}`;
   const sourceUrl = pin.sourceLinks[0]?.url;
   const pathwayText = pin.pathways?.map(pathwayLabel).join(" / ") ?? "Primary route";
+  const fieldPrompt =
+    typeof pin.metadata?.fieldPrompt === "string" ? pin.metadata.fieldPrompt : null;
 
   return (
     <article className={`pin-card ${selected ? "selected" : ""}`}>
@@ -105,6 +107,12 @@ export function PinCard({
               <div className="wide-detail">
                 <dt>Notes</dt>
                 <dd>{pin.wifi.remarks}</dd>
+              </div>
+            ) : null}
+            {fieldPrompt ? (
+              <div className="wide-detail">
+                <dt>Field ask</dt>
+                <dd>{fieldPrompt}</dd>
               </div>
             ) : null}
           </dl>

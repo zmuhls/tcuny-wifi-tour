@@ -1053,6 +1053,16 @@ dd {
   font-size: 0.78rem;
 }
 
+.ping-field-note {
+  background: var(--panel-wash);
+  border-left: 2px solid var(--coral);
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin: 10px 0 0;
+  padding: 9px 10px;
+}
+
 .tour-marker-host {
   background: transparent;
   border: 0;

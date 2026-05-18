@@ -57,6 +57,8 @@ export function PingPanel({
     status: "idle",
     roundTripMs: null,
   });
+  const fieldPrompt =
+    typeof pin.metadata?.fieldPrompt === "string" ? pin.metadata.fieldPrompt : null;
 
   useEffect(() => {
     setMessage(null);
@@ -206,6 +208,8 @@ export function PingPanel({
           }
         />
       </ul>
+
+      {fieldPrompt ? <p className="ping-field-note">{fieldPrompt}</p> : null}
 
       <form onSubmit={submit}>
         <div className="ping-actions">

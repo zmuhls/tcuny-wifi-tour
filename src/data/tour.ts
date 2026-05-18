@@ -40,6 +40,8 @@ const FREE_TOURS =
   "https://freetoursbyfoot.com/find-free-wifi-new-york/";
 const MOPD =
   "https://www.nyc.gov/site/mopd/resources/list-of-providers-offering-free-wifi.page";
+const BUSHWICK_BAKERY = "https://www.bushwick-bakery.com/";
+const LOVELESS_COFFEES = "https://lovelesscoffees.coffee/pages/visit-us";
 
 export const tourEvent: TourEvent = {
   id: "tcuny-summer-institute-2026",
@@ -1535,6 +1537,75 @@ const expandedWifiRecords: ExpandedWifiRecord[] = [
   },
 ];
 
+const thirdSpaceReconPins: TourPin[] = [
+  {
+    id: "third-space-bushwick-bakery",
+    name: "Bushwick Bakery",
+    shortName: "Bushwick Bakery",
+    category: "third-space",
+    stage: "downtown",
+    role: "recon",
+    latitude: 40.6998856,
+    longitude: -73.9280748,
+    radiusMeters: 80,
+    address: "127 Central Ave, Brooklyn, NY 11221",
+    description:
+      "Brooklyn off-route third-space stop for testing how the tour can collect cafe Wi-Fi details without treating them as fixed public infrastructure.",
+    wifi: {
+      provider: "Bushwick Bakery",
+      ssids: ["Ask staff for current network name"],
+      accessType: "needs-recon",
+      locationType: "Cafe / bakery",
+      statusLabel: "Ask on site for Wi-Fi details",
+      remarks:
+        "Solicit the current Wi-Fi name and password if staff are willing to share it; leave this as leader-review until the SSID is field-confirmed.",
+      sourceId: "Manual third-space record",
+      liveStatus: "unknown",
+    },
+    sourceLinks: [{ label: "Bushwick Bakery", url: BUSHWICK_BAKERY }],
+    mapsQuery: "Bushwick Bakery 127 Central Ave Brooklyn NY 11221",
+    pathways: ["transit"],
+    metadata: {
+      fieldPrompt: "Ask for the current Wi-Fi name and password before pinging.",
+      geocodeSource: "OpenStreetMap Nominatim",
+      neighborhood: "Bushwick",
+    },
+  },
+  {
+    id: "third-space-loveless-coffees",
+    name: "Loveless Coffees",
+    shortName: "Loveless",
+    category: "third-space",
+    stage: "downtown",
+    role: "recon",
+    latitude: 40.7007008,
+    longitude: -73.9299957,
+    radiusMeters: 80,
+    address: "86 Central Ave, Brooklyn, NY 11206",
+    description:
+      "Brooklyn off-route cafe stop for collecting locally negotiated Wi-Fi access information and comparing it to civic/public networks.",
+    wifi: {
+      provider: "Loveless Coffees",
+      ssids: ["Ask staff for current network name"],
+      accessType: "needs-recon",
+      locationType: "Cafe / coffee shop",
+      statusLabel: "Ask on site for Wi-Fi details",
+      remarks:
+        "Solicit the current Wi-Fi name and password if staff are willing to share it; leave this as leader-review until the SSID is field-confirmed.",
+      sourceId: "Manual third-space record",
+      liveStatus: "unknown",
+    },
+    sourceLinks: [{ label: "Loveless Coffees", url: LOVELESS_COFFEES }],
+    mapsQuery: "Loveless Coffees 86 Central Ave Brooklyn NY 11206",
+    pathways: ["transit"],
+    metadata: {
+      fieldPrompt: "Ask for the current Wi-Fi name and password before pinging.",
+      geocodeSource: "OpenStreetMap Nominatim",
+      neighborhood: "Bushwick",
+    },
+  },
+];
+
 const LINK_STATUS_GENERATED_AT = "2026-05-11 22:00 ET";
 
 const currentLinkStatusByAddress: Record<string, string> = {
@@ -2827,6 +2898,8 @@ pins.push(
   })),
 );
 
+pins.push(...thirdSpaceReconPins);
+
 pins.push(...privateTestPinsFromEnv());
 
 function privateTestPinsFromEnv(): TourPin[] {
@@ -2925,4 +2998,6 @@ export const sourceLinks = [
   { label: "Citywide Public Computer Centers", url: COMPUTER_CENTERS },
   { label: "Free Tours by Foot NYC Wi-Fi guide", url: FREE_TOURS },
   { label: "NYC MOPD provider page", url: MOPD },
+  { label: "Bushwick Bakery", url: BUSHWICK_BAKERY },
+  { label: "Loveless Coffees", url: LOVELESS_COFFEES },
 ];

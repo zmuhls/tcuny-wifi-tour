@@ -27,6 +27,7 @@ const defaultCategories: PinCategory[] = [
   "subway",
   "cuny",
   "public-service",
+  "third-space",
 ];
 
 type ActivePathway = TourPathway | "all";
