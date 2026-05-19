@@ -25,13 +25,15 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
     : Number.POSITIVE_INFINITY;
   const reasons: string[] = [];
   let status: PingStatus = "verified";
-  const hasReportedAccuracy =
-    candidate.gpsAccuracyMeters !== null &&
-    Number.isFinite(candidate.gpsAccuracyMeters) &&
-    candidate.gpsAccuracyMeters >= 0;
-  const accuracyOverlapMeters = hasReportedAccuracy
-    ? candidate.gpsAccuracyMeters
-    : 0;
+  const reportedAccuracyMeters = candidate.gpsAccuracyMeters;
+  const validAccuracyMeters =
+    reportedAccuracyMeters !== null &&
+    Number.isFinite(reportedAccuracyMeters) &&
+    reportedAccuracyMeters >= 0
+      ? reportedAccuracyMeters
+      : null;
+  const hasReportedAccuracy = validAccuracyMeters !== null;
+  const accuracyOverlapMeters = validAccuracyMeters ?? 0;
 
   if (candidate.contributor.eventId !== candidate.event.id) {
     reasons.push("Contributor session is not attached to this event.");
@@ -62,7 +64,7 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
       `GPS center is ${Math.round(
         distance,
       )} m from the pin, but the ${Math.round(
-        candidate.gpsAccuracyMeters ?? 0,
+        reportedAccuracyMeters ?? 0,
       )} m accuracy circle overlaps the site radius.`,
     );
   }
