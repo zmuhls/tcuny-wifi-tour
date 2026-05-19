@@ -5,6 +5,7 @@ const labels: Record<PinCategory, string> = {
   library: "Libraries",
   park: "Parks",
   linknyc: "LinkNYC",
+  "linknyc-locator": "Link locator",
   subway: "Subway",
   cuny: "CUNY",
   "public-service": "Public",
@@ -39,6 +40,22 @@ export function FilterBar({ active, onToggle }: FilterBarProps) {
           </button>
         ))}
       </div>
+      {active.has("linknyc-locator") ? (
+        <div className="locator-key" aria-label="LinkNYC locator marker key">
+          <span>
+            <i className="locator-swatch locator-kiosk" />
+            Kiosk
+          </span>
+          <span>
+            <i className="locator-swatch locator-5g" />
+            Link5G
+          </span>
+          <span>
+            <i className="locator-swatch locator-soon" />
+            Coming soon
+          </span>
+        </div>
+      ) : null}
     </section>
   );
 }

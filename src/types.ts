@@ -2,6 +2,7 @@ export type PinCategory =
   | "library"
   | "park"
   | "linknyc"
+  | "linknyc-locator"
   | "subway"
   | "cuny"
   | "public-service"

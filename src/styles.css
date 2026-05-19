@@ -680,6 +680,10 @@ textarea:focus {
   border-color: var(--blue);
 }
 
+.chip-linknyc-locator.active {
+  border-color: #2a9fd6;
+}
+
 .chip-subway.active {
   border-color: var(--black);
 }
@@ -694,6 +698,43 @@ textarea:focus {
 
 .chip-third-space.active {
   border-color: var(--coral);
+}
+
+.locator-key {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.68rem;
+  font-weight: 660;
+  gap: 8px 10px;
+  margin-top: 9px;
+}
+
+.locator-key span {
+  align-items: center;
+  display: inline-flex;
+  gap: 5px;
+}
+
+.locator-swatch {
+  border: 1px solid rgb(255 255 255 / 82%);
+  border-radius: 999px;
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+}
+
+.locator-kiosk {
+  background: #2a9fd6;
+}
+
+.locator-5g {
+  background: #30b8d9;
+}
+
+.locator-soon {
+  background: #8a969b;
 }
 
 .pin-list {
@@ -780,6 +821,19 @@ textarea:focus {
 .dot-linknyc,
 .marker-linknyc {
   background: var(--blue);
+}
+
+.dot-linknyc-locator,
+.marker-linknyc-locator {
+  background: #2a9fd6;
+}
+
+.marker-linknyc-locator.marker-link5g {
+  background: #30b8d9;
+}
+
+.marker-linknyc-locator.marker-coming-soon {
+  background: #8a969b;
 }
 
 .dot-subway,

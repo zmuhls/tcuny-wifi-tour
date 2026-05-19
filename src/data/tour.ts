@@ -1,9 +1,11 @@
 import type { TourEvent, TourPathway, TourPin } from "../types";
+import { linknycLocatorPins } from "./linknycLocator";
 
 const NYC_WIFI =
   "https://data.cityofnewyork.us/City-Government/NYC-Wi-Fi-Hotspot-Locations/yjub-udmw";
 const LINK_STATUS = "https://catalog.data.gov/dataset/linknyc-kiosk-status";
 const LINK_CONNECT = "https://www.link.nyc/how-to-connect.html";
+const LINK_LOCATOR = "https://www.link.nyc/find-a-link.html";
 const NYPL_WIFI =
   "https://www.nypl.org/help/computers-internet-and-wireless-access";
 const CUNY_EDUROAM =
@@ -3661,6 +3663,7 @@ function linksForProvider(record: ExpandedWifiRecord) {
 
   if (record.provider === "LinkNYC - Citybridge") {
     return [
+      { label: "LinkNYC Find a Link", url: LINK_LOCATOR },
       { label: "LinkNYC how to connect", url: LINK_CONNECT },
       { label: "LinkNYC Kiosk Status", url: LINK_STATUS },
       { label: "NYC Wi-Fi Hotspot Locations", url: NYC_WIFI },
@@ -3717,6 +3720,8 @@ pins.push(
 );
 
 pins.push(...thirdSpaceReconPins);
+
+pins.push(...linknycLocatorPins);
 
 pins.push(...privateTestPinsFromEnv());
 
@@ -3794,6 +3799,7 @@ function readPrivatePinNumber(key: string) {
 
 export const sourceLinks = [
   { label: "NYC Wi-Fi Hotspot Locations", url: NYC_WIFI },
+  { label: "LinkNYC Find a Link", url: LINK_LOCATOR },
   { label: "LinkNYC Kiosk Status", url: LINK_STATUS },
   { label: "LinkNYC How to Connect", url: LINK_CONNECT },
   { label: "NYPL Wireless Access", url: NYPL_WIFI },

@@ -416,6 +416,19 @@ function markerHtml(
   isSelected: boolean,
   routeOrder: number,
 ) {
+  const isLocatorPin = pin.category === "linknyc-locator";
+  const locatorProductClass =
+    isLocatorPin && pin.metadata?.linknycProductGroup === "Link5G"
+      ? "marker-link5g"
+      : isLocatorPin
+        ? "marker-link-kiosk"
+        : "";
+  const locatorStatusClass =
+    isLocatorPin && pin.metadata?.linknycAvailability === "coming-soon"
+      ? "marker-coming-soon"
+      : isLocatorPin
+        ? "marker-live"
+        : "";
   const symbol =
     progress.status === "team-verified"
       ? "✓✓"
@@ -427,7 +440,7 @@ function markerHtml(
             ? String(routeOrder + 1)
             : "";
 
-  return `<span class="tour-marker marker-${pin.category} marker-${pin.role} marker-${progress.status} ${
+  return `<span class="tour-marker marker-${pin.category} ${locatorProductClass} ${locatorStatusClass} marker-${pin.role} marker-${progress.status} ${
     isSelected ? "marker-selected" : ""
   }" aria-hidden="true">${symbol}</span>`;
 }
