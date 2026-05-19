@@ -23,6 +23,7 @@
   --blue: #607fa6;
   --black: #5d6a70;
   --violet: #8277a6;
+  --pops: #8c8678;
   --amber: #a98551;
   --coral: #a97870;
   --danger: #a94442;
@@ -692,6 +693,10 @@ textarea:focus {
   border-color: var(--violet);
 }
 
+.chip-pops.active {
+  border-color: var(--pops);
+}
+
 .chip-public-service.active {
   border-color: var(--amber);
 }
@@ -844,6 +849,11 @@ textarea:focus {
 .dot-cuny,
 .marker-cuny {
   background: var(--violet);
+}
+
+.dot-pops,
+.marker-pops {
+  background: var(--pops);
 }
 
 .dot-public-service,

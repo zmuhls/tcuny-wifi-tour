@@ -15,7 +15,7 @@ import { MapView } from "./components/MapView";
 import { PinCard } from "./components/PinCard";
 import { PingPanel } from "./components/PingPanel";
 import { WifiWallPanel } from "./components/WifiWallPanel";
-import { pins, routeStops, walkingRoutePath } from "./data/tour";
+import { pins as tourPins, routeStops, walkingRoutePath } from "./data/tour";
 import { isSupabaseConfigured } from "./lib/supabase";
 import { useTourStore } from "./lib/useTourStore";
 import type { PinCategory, RouteStage, TourPathway, TourPin } from "./types";
@@ -50,7 +50,7 @@ const stageLabels: Record<RouteStage, string> = {
 };
 
 const initialPinId =
-  pins.find((pin) => pin.metadata?.privateTest === "true")?.id ??
+  tourPins.find((pin) => pin.metadata?.privateTest === "true")?.id ??
   "nypl-schwarzman";
 
 export default function App() {
@@ -80,15 +80,18 @@ export default function App() {
     () => new Set<PinCategory>(defaultCategories),
   );
   const [activePathway, setActivePathway] = useState<ActivePathway>("all");
+  const [popsPins, setPopsPins] = useState<TourPin[]>([]);
+  const [popsLoading, setPopsLoading] = useState(false);
+  const allPins = useMemo(() => [...tourPins, ...popsPins], [popsPins]);
 
   const visiblePins = useMemo(
     () =>
-      pins.filter(
+      allPins.filter(
         (pin) =>
           activeCategories.has(pin.category) &&
           pinMatchesPathway(pin, activePathway),
       ),
-    [activeCategories, activePathway],
+    [activeCategories, activePathway, allPins],
   );
 
   const pathwayCounts = useMemo(
@@ -96,7 +99,7 @@ export default function App() {
       pathwayOptions.reduce(
         (counts, option) => ({
           ...counts,
-          [option.id]: pins.filter(
+          [option.id]: allPins.filter(
             (pin) =>
               activeCategories.has(pin.category) &&
               pinMatchesPathway(pin, option.id),
@@ -104,15 +107,15 @@ export default function App() {
         }),
         {} as Record<ActivePathway, number>,
       ),
-    [activeCategories],
+    [activeCategories, allPins],
   );
 
   const selectedPin = useMemo(
     () =>
       visiblePins.find((pin) => pin.id === selectedPinId) ??
-      pins.find((pin) => pin.id === selectedPinId) ??
-      pins[0],
-    [selectedPinId, visiblePins],
+      allPins.find((pin) => pin.id === selectedPinId) ??
+      allPins[0],
+    [allPins, selectedPinId, visiblePins],
   );
 
   const selectPin = useCallback(
@@ -143,25 +146,52 @@ export default function App() {
     }
   }, [selectedPinId, selectPin, visiblePins]);
 
-  const toggleCategory = useCallback((category: PinCategory) => {
-    setActiveCategories((current) => {
-      const next = new Set(current);
-      if (next.has(category)) {
-        next.delete(category);
-      } else {
-        next.add(category);
-      }
+  const loadPopsLayer = useCallback(() => {
+    if (popsPins.length || popsLoading) {
+      return;
+    }
 
-      return next.size ? next : current;
-    });
-  }, []);
+    setPopsLoading(true);
+    void fetch(`${import.meta.env.BASE_URL}data/popsLayer.json`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`POPS layer failed to load: ${response.status}`);
+        }
 
-  const requiredPins = pins.filter((pin) => pin.role === "required");
+        return response.json() as Promise<TourPin[]>;
+      })
+      .then((loadedPins) => setPopsPins(loadedPins))
+      .catch((error: unknown) => {
+        console.error(error);
+      })
+      .finally(() => setPopsLoading(false));
+  }, [popsLoading, popsPins.length]);
+
+  const toggleCategory = useCallback(
+    (category: PinCategory) => {
+      setActiveCategories((current) => {
+        const next = new Set(current);
+        if (next.has(category)) {
+          next.delete(category);
+        } else {
+          if (category === "pops") {
+            loadPopsLayer();
+          }
+          next.add(category);
+        }
+
+        return next.size ? next : current;
+      });
+    },
+    [loadPopsLayer],
+  );
+
+  const requiredPins = allPins.filter((pin) => pin.role === "required");
   const verifiedRequired = requiredPins.filter((pin) => {
     const progress = getProgress(pin);
     return progress.status === "verified" || progress.status === "team-verified";
   });
-  const verifiedPins = pins.filter((pin) => {
+  const verifiedPins = allPins.filter((pin) => {
     const progress = getProgress(pin);
     return progress.status === "verified" || progress.status === "team-verified";
   });

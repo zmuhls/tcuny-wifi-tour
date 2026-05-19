@@ -5,6 +5,7 @@ export type PinCategory =
   | "linknyc-locator"
   | "subway"
   | "cuny"
+  | "pops"
   | "public-service"
   | "third-space";
 

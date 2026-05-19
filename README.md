@@ -14,7 +14,7 @@ Open the local URL printed by Vite. The app works immediately with browser-local
 ## What Is Implemented
 
 - Responsive Manhattan Leaflet map with route line, category filters, pin metadata cards, and touch-friendly ping controls.
-- Seeded route pins for NYPL/Bryant Park, LinkNYC, Andrew Heiskell Library, Madison Square Park, Union Square, subway Wi-Fi, CUNY eduroam, public-service, and third-space recon layers.
+- Seeded route pins for NYPL/Bryant Park, LinkNYC, Andrew Heiskell Library, Madison Square Park, Union Square, subway Wi-Fi, CUNY eduroam, public-service, third-space recon, and privately owned public space layers.
 - Field-ready ping verification: access-code participant, GPS geofence with device-accuracy overlap, GPS accuracy threshold, and live server reachability.
 - Local realtime-style updates through `BroadcastChannel` and durable browser storage through `localStorage`.
 - Supabase-ready schema in `supabase/schema.sql`; add `.env` values from `.env.example` when a project exists.
@@ -39,8 +39,18 @@ Weak GPS accuracy, failed server reachability, and recon pins become `needs_revi
 - CUNY eduroam
 - NYC Parks Wi-Fi facilities
 - Citywide Public Computer Centers
+- NYC Planning / NYC Open Data Privately Owned Public Spaces (POPS)
 - Free Tours by Foot NYC Wi-Fi guide
 - NYC MOPD provider page
+
+## Data Refresh
+
+```bash
+npm run generate:linknyc
+npm run generate:pops
+```
+
+The POPS layer is off by default and every POPS pin is marked `needs-recon`: it is meant to help walkers compare public access, private control, required amenities, and possible building Wi-Fi without claiming that Wi-Fi is available until participants verify it on site.
 
 ## Production Notes
 

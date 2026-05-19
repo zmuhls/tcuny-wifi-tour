@@ -8,6 +8,7 @@ const labels: Record<PinCategory, string> = {
   "linknyc-locator": "Link locator",
   subway: "Subway",
   cuny: "CUNY",
+  pops: "POPS",
   "public-service": "Public",
   "third-space": "Third spaces",
 };
