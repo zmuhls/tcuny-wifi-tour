@@ -108,8 +108,9 @@ export function PingPanel({
       );
       const accuracy = position.coords.accuracy;
       const insideRadius = distance <= pin.radiusMeters;
+      const accuracyOverlapsRadius = distance <= pin.radiusMeters + accuracy;
       const hasFieldReadyAccuracy = accuracy <= maxGpsAccuracyMeters;
-      const status = !insideRadius
+      const status = !insideRadius && !accuracyOverlapsRadius
         ? "failed"
         : hasFieldReadyAccuracy
           ? "passed"
@@ -119,7 +120,11 @@ export function PingPanel({
         status,
         distanceMeters: distance,
         accuracyMeters: accuracy,
-        message: insideRadius ? "Inside radius" : "Outside radius",
+        message: insideRadius
+          ? "Inside radius"
+          : accuracyOverlapsRadius
+            ? "Accuracy overlap"
+            : "Outside radius",
       });
 
       return position;

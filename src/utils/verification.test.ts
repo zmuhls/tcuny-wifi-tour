@@ -93,6 +93,34 @@ describe("verifyPing", () => {
     expect(ping.reasons.join(" ")).toContain("outside");
   });
 
+  it("accepts field-ready indoor GPS when the accuracy circle overlaps the site", () => {
+    const gcPin = pins.find((item) => item.id === "cuny-graduate-center")!;
+    const ping = verifyPing(
+      candidate({
+        pin: gcPin,
+        latitude: gcPin.latitude + (gcPin.radiusMeters + 35) / 111_320,
+        gpsAccuracyMeters: 48,
+      }),
+    );
+
+    expect(ping.status).toBe("verified");
+    expect(ping.reasons.join(" ")).toContain("accuracy circle overlaps");
+  });
+
+  it("keeps broad indoor GPS overlap as review rather than hard rejection", () => {
+    const gcPin = pins.find((item) => item.id === "cuny-graduate-center")!;
+    const ping = verifyPing(
+      candidate({
+        pin: gcPin,
+        latitude: gcPin.latitude + (gcPin.radiusMeters + 120) / 111_320,
+        gpsAccuracyMeters: 160,
+      }),
+    );
+
+    expect(ping.status).toBe("needs_review");
+    expect(ping.reasons.join(" ")).toContain("GPS accuracy");
+  });
+
   it("stress verifies every non-recon mapped pin at its own location without Wi-Fi self-report gates", () => {
     const failures = pins
       .filter((item) => item.wifi.accessType !== "needs-recon")
@@ -108,7 +136,9 @@ describe("verifyPing", () => {
         verifyPing(
           candidate({
             pin: item,
-            latitude: item.latitude + (item.radiusMeters + 20) / 111_320,
+            latitude:
+              item.latitude +
+              (item.radiusMeters + tourEvent.maxGpsAccuracyMeters + 20) / 111_320,
           }),
         ),
       )
@@ -174,7 +204,9 @@ describe("verifyPing", () => {
           ping: verifyPing(
             candidate({
               pin: item,
-              latitude: item.latitude + (item.radiusMeters + 20) / 111_320,
+              latitude:
+                item.latitude +
+                (item.radiusMeters + tourEvent.maxGpsAccuracyMeters + 20) / 111_320,
             }),
           ),
         },

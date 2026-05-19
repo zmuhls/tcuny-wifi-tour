@@ -298,7 +298,7 @@ export const pins: TourPin[] = [
     role: "optional",
     latitude: 40.748608,
     longitude: -73.984345,
-    radiusMeters: 95,
+    radiusMeters: 160,
     address: "365 Fifth Avenue",
     description:
       "Credentialed CUNY layer: useful for participants with eduroam access, but not general public Wi-Fi.",
@@ -320,6 +320,10 @@ export const pins: TourPin[] = [
     ],
     mapsQuery: "CUNY Graduate Center 365 Fifth Avenue",
     pathways: ["spine", "east"],
+    metadata: {
+      fieldNote:
+        "Expanded for indoor GC field testing because browser GPS often resolves from nearby street or network anchors.",
+    },
   },
   {
     id: "andrew-heiskell",

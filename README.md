@@ -15,7 +15,7 @@ Open the local URL printed by Vite. The app works immediately with browser-local
 
 - Responsive Manhattan Leaflet map with route line, category filters, pin metadata cards, and touch-friendly ping controls.
 - Seeded route pins for NYPL/Bryant Park, LinkNYC, Andrew Heiskell Library, Madison Square Park, Union Square, subway Wi-Fi, CUNY eduroam, public-service, and third-space recon layers.
-- Field-ready ping verification: access-code participant, GPS geofence, GPS accuracy threshold, self-reported SSID, and live server reachability.
+- Field-ready ping verification: access-code participant, GPS geofence with device-accuracy overlap, GPS accuracy threshold, and live server reachability.
 - Local realtime-style updates through `BroadcastChannel` and durable browser storage through `localStorage`.
 - Supabase-ready schema in `supabase/schema.sql`; add `.env` values from `.env.example` when a project exists.
 
@@ -24,12 +24,11 @@ Open the local URL printed by Vite. The app works immediately with browser-local
 Browsers do not reliably expose the connected Wi-Fi SSID. The app therefore treats a checkoff as a field-ready evidence bundle, not forensic network proof:
 
 - participant joined with an event access code;
-- browser GPS coordinates fall inside the pin radius;
+- browser GPS coordinates fall inside the pin radius, or the reported device accuracy circle overlaps that radius;
 - GPS accuracy is at or below 80 meters;
-- participant selects one of the assigned SSIDs for that pin;
 - the device successfully reaches the app server at ping time.
 
-Weak GPS accuracy, failed server reachability, and recon pins become `needs_review`. Pings outside the geofence, missing an assigned SSID, or claiming an unassigned SSID are `rejected` and do not check off the pin.
+Weak GPS accuracy, failed server reachability, and recon pins become `needs_review`. Pings outside both the geofence and the reported GPS accuracy circle are `rejected` and do not check off the pin.
 
 ## Data Sources
 

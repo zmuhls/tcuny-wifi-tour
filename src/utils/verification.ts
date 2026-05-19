@@ -25,6 +25,13 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
     : Number.POSITIVE_INFINITY;
   const reasons: string[] = [];
   let status: PingStatus = "verified";
+  const hasReportedAccuracy =
+    candidate.gpsAccuracyMeters !== null &&
+    Number.isFinite(candidate.gpsAccuracyMeters) &&
+    candidate.gpsAccuracyMeters >= 0;
+  const accuracyOverlapMeters = hasReportedAccuracy
+    ? candidate.gpsAccuracyMeters
+    : 0;
 
   if (candidate.contributor.eventId !== candidate.event.id) {
     reasons.push("Contributor session is not attached to this event.");
@@ -45,11 +52,19 @@ export function verifyPing(candidate: PingCandidate): PingRecord {
     status = "rejected";
   }
 
-  if (distance > candidate.pin.radiusMeters) {
+  if (distance > candidate.pin.radiusMeters + accuracyOverlapMeters) {
     reasons.push(
-      `GPS is outside the ${candidate.pin.radiusMeters} m site radius.`,
+      `GPS is outside the ${candidate.pin.radiusMeters} m site radius, even after device accuracy is considered.`,
     );
     status = "rejected";
+  } else if (distance > candidate.pin.radiusMeters && hasReportedAccuracy) {
+    reasons.push(
+      `GPS center is ${Math.round(
+        distance,
+      )} m from the pin, but the ${Math.round(
+        candidate.gpsAccuracyMeters ?? 0,
+      )} m accuracy circle overlaps the site radius.`,
+    );
   }
 
   if (candidate.gpsAccuracyMeters === null) {
